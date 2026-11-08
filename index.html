@@ -1,0 +1,1542 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Engleski svaki dan</title>
+<meta name="description" content="Besplatna aplikacija za učenje engleskog od A1 do C1: lekcije, izgovor, ponavljanje i rang lista.">
+<meta name="theme-color" content="#2a51e0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Engleski">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+/* Layout: one-column phone app, max 560px, bottom tab bar; lessons take the full screen with a fixed action bar. */
+:root{
+  --bg:#eef2f8; --surface:#ffffff; --surface2:#f6f8fc; --ink:#15203a; --muted:#5b6784; --line:#d8dfeb;
+  --accent:#2a51e0; --accent-ink:#ffffff; --accent-soft:#e3e9ff;
+  --sun:#ffc928; --sun-ink:#3a2a00;
+  --good:#16895a; --good-bg:#dff5ea; --bad:#c93a32; --bad-bg:#fde6e3;
+  --font-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r:14px; --shadow:0 1px 0 rgba(21,32,58,.06), 0 6px 18px -10px rgba(21,32,58,.25);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1424; --surface:#172038; --surface2:#1c2642; --ink:#e7ecf7; --muted:#9ba7c4; --line:#2a3658;
+  --accent:#7390ff; --accent-ink:#0b1022; --accent-soft:#232f57;
+  --sun:#ffd451; --sun-ink:#2a1f00;
+  --good:#3cc489; --good-bg:#11372a; --bad:#ff7066; --bad-bg:#3f1b1b;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 20px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1424; --surface:#172038; --surface2:#1c2642; --ink:#e7ecf7; --muted:#9ba7c4; --line:#2a3658;
+  --accent:#7390ff; --accent-ink:#0b1022; --accent-soft:#232f57;
+  --sun:#ffd451; --sun-ink:#2a1f00;
+  --good:#3cc489; --good-bg:#11372a; --bad:#ff7066; --bad-bg:#3f1b1b;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 20px -12px rgba(0,0,0,.6); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.15}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.muted{color:var(--muted)}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+.top .wrap{display:flex;align-items:center;gap:10px;padding-block:12px}
+.brand{font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:-.01em;flex:1;min-width:0}
+.brand span{background:linear-gradient(transparent 62%,var(--sun) 62%,var(--sun) 92%,transparent 92%)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.chip svg{width:16px;height:16px}
+.flame{color:#f08a1c}
+
+main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+main .wrap{display:flex;flex-direction:column;gap:16px;padding-block:4px 20px}
+
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding-block:6px}
+.tab{background:none;border:0;border-radius:12px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted);position:relative}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+.badge{position:absolute;top:2px;right:calc(50% - 22px);background:var(--bad);color:#fff;border-radius:999px;font-size:11px;min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center;font-weight:700}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.today{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.ring{width:64px;height:64px}
+.ring circle{fill:none;stroke-width:7}
+.ring .bgc{stroke:var(--line)} .ring .fgc{stroke:var(--sun);stroke-linecap:round;transition:stroke-dashoffset .6s}
+.ring text{font-family:var(--font-display);font-weight:800;font-size:15px;fill:var(--ink)}
+.today h2{font-size:19px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:700;background:var(--accent);color:var(--accent-ink);box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 60%,#000);transition:transform .08s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 color-mix(in srgb,var(--accent) 60%,#000)}
+.btn[disabled]{background:var(--line);color:var(--muted);box-shadow:none;cursor:default}
+.btn.ghost{background:var(--surface2);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.sun{background:var(--sun);color:var(--sun-ink);box-shadow:0 3px 0 color-mix(in srgb,var(--sun) 55%,#000)}
+.btn.small{padding:8px 12px;font-size:14px;border-radius:10px}
+.btn.block{width:100%}
+
+.next{background:var(--accent);color:var(--accent-ink);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.next .eyebrow{color:inherit;opacity:.8}
+.next h2{font-size:24px}
+.next .btn{background:var(--sun);color:var(--sun-ink);align-self:flex-start;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.next::after{content:"";position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;border:18px solid rgba(255,255,255,.13)}
+
+.units{display:flex;flex-direction:column;gap:12px}
+.unit{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;grid-template-columns:44px 1fr;gap:12px}
+.unum{width:44px;height:44px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:18px}
+.unit.complete .unum{background:var(--good);color:#fff;border-color:transparent}
+.unit h3{font-size:17px}
+.unit .sr{font-size:14px;color:var(--muted)}
+.lessons{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.lpill{border:1px solid var(--line);background:var(--surface2);border-radius:999px;padding:6px 11px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+.lpill.done{background:var(--good-bg);border-color:transparent;color:var(--good)}
+.lpill svg{width:14px;height:14px}
+
+/* lesson */
+.lhead{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+.lhead .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
+.x{background:none;border:0;padding:6px;border-radius:10px;color:var(--muted)}
+.x svg{width:24px;height:24px;display:block}
+.bar{flex:1;height:12px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);border-radius:999px;transition:width .35s}
+.stage{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+.stage .wrap{display:flex;flex-direction:column;gap:18px;padding-block:8px 20px}
+.prompt{font-family:var(--font-display);font-size:22px;font-weight:700}
+.big{font-family:var(--font-display);font-size:34px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
+.say{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spk{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;display:inline-flex;gap:6px;align-items:center;font-weight:700;font-size:14px;color:var(--accent)}
+.spk svg{width:22px;height:22px}
+.spk.huge{padding:22px;border-radius:20px;background:var(--accent);color:var(--accent-ink);border:0;box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 60%,#000)}
+.spk.huge svg{width:44px;height:44px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:17px;font-weight:600;box-shadow:0 2px 0 var(--line)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 2px 0 var(--accent)}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.tagnew{align-self:flex-start;background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:3px 8px;font-size:12px;font-weight:800;letter-spacing:.06em}
+.flash{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.flash .tr{font-size:19px;color:var(--muted)}
+.answer{min-height:64px;border-bottom:2px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;align-content:flex-start}
+.bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tok{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:9px 13px;font-size:17px;font-weight:600;box-shadow:0 2px 0 var(--line)}
+.tok.used{visibility:hidden}
+.field{width:100%;font:inherit;font-size:18px;padding:14px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+.bubbles{display:flex;flex-direction:column;gap:10px}
+.bub{max-width:88%;padding:11px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.bub.me{align-self:flex-end;background:var(--accent-soft);border-color:transparent}
+.bub .who{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.bub .en{font-size:17px;font-weight:600}
+.bub .srt{font-size:14px;color:var(--muted)}
+.bub .mini{align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--accent);font-size:13px;font-weight:700;display:inline-flex;gap:4px;align-items:center}
+.bub .mini svg{width:16px;height:16px}
+.tip{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.tip p{margin:0}
+.tip b{color:var(--accent)}
+.tip table{border-collapse:collapse;font-size:15px}
+.tip td{padding:4px 12px 4px 0;border-bottom:1px solid var(--line)}
+.exl{display:flex;flex-direction:column;gap:8px}
+.exl button{display:flex;justify-content:space-between;gap:10px;text-align:left;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.exl .e{font-weight:700} .exl .s{color:var(--muted);font-size:14px}
+.blank{font-family:var(--font-display);font-size:24px;font-weight:700}
+.blank u{text-decoration:none;border-bottom:3px solid var(--accent);padding:0 18px}
+
+.action{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.action .wrap{display:flex;flex-direction:column;gap:10px;padding-block:14px}
+.action.ok{background:var(--good-bg);border-color:transparent}
+.action.no{background:var(--bad-bg);border-color:transparent}
+.fb{display:flex;gap:10px;align-items:flex-start}
+.fb h3{font-size:20px}
+.action.ok h3{color:var(--good)} .action.no h3{color:var(--bad)}
+.fb .ans{font-weight:600;margin-top:2px}
+.fb .ans small{display:block;color:var(--muted);font-weight:500}
+.action.ok .btn{background:var(--good);color:#fff;box-shadow:0 3px 0 color-mix(in srgb,var(--good) 60%,#000)}
+.action.no .btn{background:var(--bad);color:#fff;box-shadow:0 3px 0 color-mix(in srgb,var(--bad) 60%,#000)}
+
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding-top:30px}
+.done h1{font-size:30px}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;gap:2px;align-items:center}
+.stat b{font-family:var(--font-display);font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);font-weight:600}
+
+/* chat */
+.scen{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.scen button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px}
+.scen button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chatlog{display:flex;flex-direction:column;gap:10px}
+.fix{align-self:flex-end;max-width:88%;background:var(--sun);color:var(--sun-ink);border-radius:14px;padding:10px 12px;font-size:14px;display:flex;flex-direction:column;gap:2px}
+.fix b{font-size:15px}
+.ideas{display:flex;flex-wrap:wrap;gap:6px}
+.ideas button{border:1px dashed var(--accent);background:none;color:var(--accent);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:600;text-align:left}
+.composer{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:19;background:var(--bg);border-top:1px solid var(--line)}
+.composer .wrap{display:flex;gap:8px;padding-block:10px}
+.composer textarea{flex:1;min-width:0;resize:none;font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);height:46px}
+main.chatpad{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+.typing{color:var(--muted);font-style:italic}
+
+/* stats */
+.chart{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;align-items:end;height:110px;padding-top:6px}
+.chart div{background:var(--accent);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.chart div.today-b{background:var(--sun)}
+.chart div.goal-hit{background:var(--good)}
+.chartx{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;font-size:10px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:8px 12px;font-weight:600;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.setrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:0}
+ol.howto{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.note{font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@keyframes pop{0%{transform:scale(.96);opacity:.6}100%{transform:none;opacity:1}}
+.stage .wrap>*{animation:pop .18s ease-out}
+
+/* ---- v2 additions ---- */
+.tabs .wrap{grid-template-columns:repeat(5,1fr);gap:2px}
+.tab{font-size:11px}
+.badge{right:calc(50% - 20px)}
+.lvchip{background:var(--ink);color:var(--bg);border-color:var(--ink);letter-spacing:.04em}
+.pageh{font-size:28px;margin-top:4px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.stack h2{font-size:20px}
+.linkbtn{background:none;border:0;padding:6px 0;color:var(--accent);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px;align-self:flex-start}
+.btn.danger{background:var(--bad);color:#fff;box-shadow:none}
+a.btn{display:inline-block;text-decoration:none;text-align:center;align-self:flex-start}
+.next .btn.ghost.onacc{background:transparent;color:inherit;border:1px solid rgba(255,255,255,.5);box-shadow:none}
+
+/* plan */
+.plan{display:flex;flex-direction:column;gap:12px}
+.planhead{display:flex;gap:14px;align-items:center}
+.planhead h2{font-size:20px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.steps button{width:100%;display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left}
+.steps .dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;background:var(--surface)}
+.steps .dot svg{width:16px;height:16px}
+.steps li.done .dot{background:var(--good);border-color:var(--good);color:#fff}
+.steps li.done .st b{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.steps li.cur button{border-color:var(--accent);background:var(--accent-soft)}
+.steps li.cur .dot{border-color:var(--accent)}
+.steps .st{flex:1;min-width:0;display:flex;flex-direction:column}
+.steps .st span{font-size:13px;color:var(--muted)}
+.steps .go{background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:5px 10px;font-weight:700;font-size:13px}
+.chev{width:18px;height:18px;color:var(--muted);flex:none;transition:transform .2s}
+.chev.rot{transform:rotate(90deg)}
+
+/* coach */
+.coach{display:flex;flex-direction:column;gap:12px}
+.tipc{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+.tipc.first{padding-top:0;border-top:0}
+.tipc b{font-family:var(--font-display);font-size:17px}
+.tipc p{margin:0;color:var(--muted);font-size:14px}
+.tipc .btn{align-self:flex-start}
+
+/* levels */
+.lvl{display:flex;flex-direction:column;gap:10px}
+.lvlhead{display:grid;grid-template-columns:auto 1fr 70px auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left}
+.lvl.locked .lvlhead{opacity:.7}
+.lvbadge{font-family:var(--font-display);font-weight:800;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:6px 9px;font-size:15px;min-width:42px;text-align:center}
+.lvbadge.off,.lvl.locked .lvbadge{background:var(--line);color:var(--muted)}
+.lvt{display:flex;flex-direction:column;min-width:0}
+.lvt span{font-size:13px;color:var(--muted)}
+.lvbar,.sbar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;display:block}
+.lvbar i,.sbar i{display:block;height:100%;background:var(--good);border-radius:999px}
+.sbar i.low{background:var(--bad)}
+.unit.ulock{opacity:.55}
+.unit.ulock .unum svg{width:18px;height:18px}
+.lpill small{font-size:11px;opacity:.8;font-variant-numeric:tabular-nums}
+.levtest{display:flex;flex-direction:column;gap:8px;border-color:var(--sun)}
+
+/* skills */
+.skills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:420px){.skills{grid-template-columns:repeat(2,1fr)}}
+.skill{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px;text-align:left}
+.skill .pct{font-family:var(--font-display);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+.lvrow{display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;align-items:center}
+.lvrow .lvbadge{min-width:38px;padding:3px 6px;font-size:13px}
+.lvname{font-size:14px;font-weight:600;min-width:84px}
+
+/* microphone */
+.micwrap{display:flex;align-items:center;gap:14px}
+.mic{width:76px;height:76px;flex:none;border-radius:50%;border:0;background:var(--bad);color:#fff;display:grid;place-items:center;box-shadow:0 4px 0 color-mix(in srgb,var(--bad) 60%,#000)}
+.mic svg{width:34px;height:34px}
+.mic.on{animation:pulse 1.1s infinite}
+.mic[disabled]{background:var(--line);box-shadow:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--bad) 55%,transparent)}100%{box-shadow:0 0 0 18px transparent}}
+.miclbl{font-weight:600;min-width:0}
+.micres{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.score{font-family:var(--font-display);font-weight:800;font-size:26px;border-radius:12px;padding:6px 10px;font-variant-numeric:tabular-nums}
+.score.good{background:var(--good-bg);color:var(--good)}
+.score.mid{background:color-mix(in srgb,var(--sun) 30%,var(--surface));color:var(--sun-ink)}
+.score.low{background:var(--bad-bg);color:var(--bad)}
+.wd{border-radius:6px;transition:background .2s}
+.wd.ok{color:var(--good)}
+.wd.bad{color:var(--bad);text-decoration:underline wavy;text-underline-offset:5px}
+.speakline{font-size:28px}
+
+/* feedback */
+.your{color:var(--muted);font-size:14px}
+.your s{color:var(--bad)}
+.why{font-size:14px;background:var(--surface);border-radius:10px;padding:8px 10px;color:var(--ink)}
+.action .why{background:color-mix(in srgb,var(--surface) 70%,transparent)}
+mark{background:var(--sun);color:var(--sun-ink);border-radius:4px;padding:0 3px}
+.tagnew.warn{background:var(--bad);color:#fff}
+.mlist{display:flex;flex-direction:column;gap:8px}
+.mrow{display:flex;flex-direction:column;gap:3px;padding:10px 12px;background:var(--surface2);border:1px solid var(--line);border-radius:12px}
+.mq{font-size:13px;color:var(--muted)}
+.mc{font-size:15px}
+
+/* forms */
+.switch{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.switch input{width:20px;height:20px;margin:0;flex:none;accent-color:var(--accent)}
+.aform{display:flex;flex-direction:column;gap:10px}
+.aform label{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:600}
+.aform .field{font-size:16px;padding:12px}
+.amsg{margin:0;padding:8px 10px;border-radius:10px;background:var(--bad-bg);color:var(--ink);font-size:14px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.avatar svg{width:22px;height:22px}
+.backup{font-size:13px;font-family:ui-monospace,Menlo,monospace;resize:vertical}
+
+/* leaderboard */
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.lb li{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.lb li.me{border-color:var(--accent);background:var(--accent-soft)}
+.rk{font-family:var(--font-display);font-weight:800;font-size:17px;text-align:center;border-radius:8px;padding:4px 0;font-variant-numeric:tabular-nums}
+.rk.top1{background:var(--sun);color:var(--sun-ink)}
+.rk.top2{background:var(--line)}
+.rk.top3{background:color-mix(in srgb,#c8763a 35%,var(--surface))}
+.nm{display:flex;flex-direction:column;min-width:0}
+.nm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm span{font-size:12px;color:var(--muted)}
+.lb .xp{font-weight:800;font-variant-numeric:tabular-nums}
+
+/* toast + sheet */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(10,15,30,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.sheetcard{background:var(--surface);color:var(--ink);border-radius:20px;padding:20px;max-width:520px;width:100%;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.sheetcard h2{font-size:22px}
+.sheetcard p{margin:0;color:var(--muted)}
+
+.brand{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand em{font-style:normal}
+@media (max-width:440px){.brand-rest{display:none}}
+.exl button>svg{width:22px;height:22px;flex:none;color:var(--accent);align-self:center}
+.lvrow.sk3{grid-template-columns:84px 1fr 44px}
+
+.pron{font-size:16px;color:var(--muted)}
+.pron b{color:var(--accent);letter-spacing:.02em}
+.wline{display:flex;flex-wrap:wrap;gap:6px 8px}
+.wbtn{font:inherit;background:none;border:0;border-bottom:2px dotted var(--line);padding:0 2px;color:var(--ink);cursor:pointer}
+.wbtn:active{border-color:var(--accent);color:var(--accent)}
+.abc{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.abc button{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.abc b{font-family:var(--font-display);font-size:24px}
+.abc span{font-size:12px;color:var(--muted);text-align:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid2 .btn{align-self:stretch}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const UNITS_A2 = [
+{ id:"u1", en:"Meeting people", sr:"Upoznavanje",
+  words:[["name","ime"],["country","zemlja"],["city","grad"],["job","posao"],["friend","prijatelj"],["family","porodica"],["married","oženjen / udata"],["live","živeti"],["work","raditi"],["nice","lep, prijatan"]],
+  phrases:[["Nice to meet you.","Drago mi je."],["What's your name?","Kako se zoveš?"],["Where are you from?","Odakle si?"],["I'm from Serbia.","Ja sam iz Srbije."],["I live in Belgrade.","Živim u Beogradu."],["What do you do?","Čime se baviš?"],["I work as a driver.","Radim kao vozač."],["How long have you been here?","Koliko dugo si ovde?"]],
+  dialog:[["A","Hi! I'm Anna. What's your name?","Zdravo! Ja sam Ana. Kako se zoveš?"],["B","Hi Anna, I'm Marko. Nice to meet you.","Zdravo Ana, ja sam Marko. Drago mi je."],["A","Nice to meet you too. Where are you from?","I meni. Odakle si?"],["B","I'm from Serbia. I live in Novi Sad.","Iz Srbije sam. Živim u Novom Sadu."],["A","Oh, nice! What do you do?","O, lepo! Čime se baviš?"],["B","I work as an electrician. And you?","Radim kao električar. A ti?"],["A","I'm a nurse. How long have you been here?","Ja sam medicinska sestra. Koliko dugo si ovde?"],["B","Just two weeks.","Samo dve nedelje."]],
+  grammar:{ title:"Glagol TO BE (biti)",
+    html:"<p>Ovo je najvažniji glagol. Menja se po licu:</p><table><tr><td><b>I am</b></td><td>ja sam</td></tr><tr><td><b>you are</b></td><td>ti si / vi ste</td></tr><tr><td><b>he / she / it is</b></td><td>on / ona / ono je</td></tr><tr><td><b>we / they are</b></td><td>mi smo / oni su</td></tr></table><p>Odrična: <b>I'm not</b>, <b>isn't</b>, <b>aren't</b>. Pitanje: obrni red → <b>Are you</b> married?</p>",
+    ex:[["I'm a driver.","Ja sam vozač."],["She isn't from London.","Ona nije iz Londona."],["Are you married?","Da li si oženjen?"]],
+    quiz:[["She ___ a teacher.",["is","am","are"],0],["We ___ from Serbia.",["are","is","am"],0],["I ___ not married.",["am","is","are"],0],["___ you from Belgrade?",["Are","Is","Am"],0]] } },
+
+{ id:"u2", en:"At the café", sr:"Kafić i restoran",
+  words:[["menu","jelovnik"],["bill","račun (u restoranu)"],["water","voda"],["coffee","kafa"],["table","sto"],["waiter","konobar"],["order","naručiti"],["tip","bakšiš"],["hungry","gladan"],["delicious","ukusan"]],
+  phrases:[["Can I see the menu, please?","Mogu li da vidim jelovnik?"],["I'd like a coffee, please.","Želeo bih kafu, molim."],["A table for two, please.","Sto za dvoje, molim."],["Can I have the bill, please?","Mogu li dobiti račun?"],["Can I pay by card?","Mogu li da platim karticom?"],["What do you recommend?","Šta preporučujete?"],["It's delicious.","Ukusno je."],["Could I get some water?","Mogu li dobiti malo vode?"]],
+  dialog:[["A","Good evening! A table for one?","Dobro veče! Sto za jednog?"],["B","No, a table for two, please.","Ne, sto za dvoje, molim."],["A","Of course. Here is the menu.","Naravno. Izvolite jelovnik."],["B","Thank you. What do you recommend?","Hvala. Šta preporučujete?"],["A","The chicken soup is very good today.","Pileća supa je danas odlična."],["B","Great, I'd like the soup and a coffee, please.","Odlično, želeo bih supu i kafu."],["A","Anything else?","Još nešto?"],["B","No, thanks. Can I pay by card?","Ne, hvala. Mogu li da platim karticom?"]],
+  grammar:{ title:"Ljubazne molbe: I'd like / Can I",
+    html:"<p><b>I'd like</b> (= I would like) znači <i>želeo bih</i>. Posle njega ide imenica sa <b>a/an</b> ili glagol sa <b>to</b>.</p><table><tr><td><b>I'd like a</b> tea.</td><td>Želeo bih čaj.</td></tr><tr><td><b>I'd like to</b> pay.</td><td>Želeo bih da platim.</td></tr></table><p>Za molbu koristi <b>Can I have…?</b> ili ljubaznije <b>Could I…?</b>. Na kraj dodaj <b>please</b>.</p>",
+    ex:[["I'd like to order, please.","Želeo bih da naručim."],["Can I have a glass of water?","Mogu li dobiti čašu vode?"],["Could I see the menu?","Mogu li da vidim jelovnik?"]],
+    quiz:[["I'd like ___ coffee, please.",["a","to","an"],0],["I'd like ___ pay, please.",["to","a","for"],0],["___ I have the bill, please?",["Can","Do","Am"],0],["Could I ___ some water?",["get","gets","to get"],0]] } },
+
+{ id:"u3", en:"Shopping", sr:"Kupovina",
+  words:[["price","cena"],["cheap","jeftin"],["expensive","skup"],["size","veličina, broj"],["shop","prodavnica"],["cash","gotovina"],["receipt","fiskalni račun"],["discount","popust"],["bag","kesa, torba"],["try on","probati (odeću)"]],
+  phrases:[["How much is this?","Koliko ovo košta?"],["Do you have this in a bigger size?","Imate li ovo u većem broju?"],["Can I try it on?","Mogu li da probam?"],["I'm just looking, thanks.","Samo gledam, hvala."],["Where is the fitting room?","Gde je kabina?"],["I'll take it.","Uzeću."],["Is there a discount?","Ima li popusta?"],["Do you need a bag?","Treba li vam kesa?"]],
+  dialog:[["A","Hello, can I help you?","Zdravo, mogu li da pomognem?"],["B","I'm just looking, thanks.","Samo gledam, hvala."],["A","No problem. These jackets are on sale.","Nema problema. Ove jakne su na sniženju."],["B","How much is this one?","Koliko košta ova?"],["A","It's forty euros.","Četrdeset evra."],["B","Can I try it on?","Mogu li da je probam?"],["A","Sure, the fitting room is over there.","Naravno, kabina je tamo."],["B","It's too small. Do you have it in a bigger size?","Premala je. Imate li veći broj?"]],
+  grammar:{ title:"This / that / these / those",
+    html:"<table><tr><td><b>this</b></td><td>ovo (blizu, jednina)</td></tr><tr><td><b>these</b></td><td>ovi, ove (blizu, množina)</td></tr><tr><td><b>that</b></td><td>ono, to (daleko, jednina)</td></tr><tr><td><b>those</b></td><td>oni, one (daleko, množina)</td></tr></table><p><b>How much</b> pitaš za cenu i za ono što se ne broji (water, money). <b>How many</b> za ono što se broji (bags, shoes).</p>",
+    ex:[["How much is this shirt?","Koliko košta ova košulja?"],["How much are these shoes?","Koliko koštaju ove cipele?"],["How many bags do you need?","Koliko kesa vam treba?"]],
+    quiz:[["How much ___ these shoes?",["are","is","am"],0],["___ jacket here is nice.",["This","These","Those"],0],["How ___ bags do you need?",["many","much","more"],0],["I like ___ shoes over there.",["those","this","that"],0]] } },
+
+{ id:"u4", en:"Getting around", sr:"Putovanje i snalaženje",
+  words:[["airport","aerodrom"],["ticket","karta"],["train","voz"],["station","stanica"],["left","levo"],["right","desno"],["straight","pravo"],["near","blizu"],["far","daleko"],["passport","pasoš"]],
+  phrases:[["Excuse me, where is the station?","Izvinite, gde je stanica?"],["Go straight and turn left.","Idite pravo i skrenite levo."],["Is it far from here?","Da li je daleko odavde?"],["One ticket to London, please.","Jednu kartu za London, molim."],["What time does the train leave?","U koliko polazi voz?"],["I'm lost.","Izgubio sam se."],["Can you show me on the map?","Možete li da mi pokažete na mapi?"],["How do I get to the city center?","Kako da stignem do centra grada?"]],
+  dialog:[["B","Excuse me, how do I get to the train station?","Izvinite, kako da stignem do železničke stanice?"],["A","Go straight and turn left at the bank.","Idite pravo i skrenite levo kod banke."],["B","Is it far from here?","Da li je daleko odavde?"],["A","No, it's about five minutes on foot.","Ne, oko pet minuta peške."],["B","Thank you! And where can I buy a ticket?","Hvala! A gde mogu da kupim kartu?"],["A","There's a ticket office inside the station.","U stanici postoji šalter za karte."],["B","Great, thanks for your help.","Super, hvala na pomoći."]],
+  grammar:{ title:"Uputstva i mesto",
+    html:"<p>Za uputstva koristi glagol bez <b>to</b> na početku rečenice: <b>Go</b> straight. <b>Turn</b> right. <b>Take</b> the bus.</p><table><tr><td><b>next to</b></td><td>pored</td></tr><tr><td><b>opposite</b></td><td>preko puta</td></tr><tr><td><b>between</b></td><td>između</td></tr><tr><td><b>behind</b></td><td>iza</td></tr></table>",
+    ex:[["Turn right at the corner.","Skrenite desno na uglu."],["The hotel is next to the bank.","Hotel je pored banke."],["The café is opposite the station.","Kafić je preko puta stanice."]],
+    quiz:[["___ left at the bank.",["Turn","Turns","Turning"],0],["The bank is ___ to the post office.",["next","near of","opposite"],0],["The café is ___ the bank and the hotel.",["between","next","opposite"],0],["___ straight for 200 meters.",["Go","Goes","Going"],0]] } },
+
+{ id:"u5", en:"At the hotel", sr:"Hotel i problemi",
+  words:[["room","soba"],["key","ključ"],["reservation","rezervacija"],["towel","peškir"],["broken","pokvaren"],["noisy","bučan"],["floor","sprat"],["breakfast","doručak"],["check in","prijaviti se (u hotel)"],["included","uključen"]],
+  phrases:[["I have a reservation.","Imam rezervaciju."],["The air conditioning doesn't work.","Klima ne radi."],["Could you send someone, please?","Možete li da pošaljete nekoga?"],["What time is breakfast?","U koliko je doručak?"],["Could I have another towel?","Mogu li dobiti još jedan peškir?"],["The room is too noisy.","Soba je previše bučna."],["I'd like to check out.","Želim da se odjavim."],["Is Wi-Fi included?","Da li je Wi-Fi uključen?"]],
+  dialog:[["A","Good afternoon. How can I help you?","Dobar dan. Kako mogu da vam pomognem?"],["B","Hi, I have a reservation. My name is Petrović.","Zdravo, imam rezervaciju. Prezime mi je Petrović."],["A","Yes, room 305, on the third floor. Here's your key.","Da, soba 305, na trećem spratu. Izvolite ključ."],["B","Thank you. What time is breakfast?","Hvala. U koliko je doručak?"],["A","From seven to ten. Reception is open all night.","Od sedam do deset. Recepcija radi celu noć."],["B","The air conditioning in my room doesn't work.","Klima u mojoj sobi ne radi."],["A","I'm sorry. I'll send someone right away.","Žao mi je. Odmah šaljem nekoga."],["B","Thank you very much.","Hvala vam puno."]],
+  grammar:{ title:"Odrična rečenica: don't / doesn't",
+    html:"<p>U sadašnjem vremenu odričnu rečenicu praviš sa <b>don't</b> ili <b>doesn't</b> + glagol.</p><table><tr><td>I / you / we / they</td><td><b>don't</b> work</td></tr><tr><td>he / she / it</td><td><b>doesn't</b> work</td></tr></table><p>Pitanje: <b>Do</b> you have…? <b>Does</b> it have…? Posle <b>doesn't</b> i <b>does</b> glagol nema -s.</p>",
+    ex:[["The TV doesn't work.","Televizor ne radi."],["I don't have a key.","Nemam ključ."],["Does the room have a balcony?","Da li soba ima terasu?"]],
+    quiz:[["The shower ___ work.",["doesn't","don't","isn't"],0],["I ___ have a towel.",["don't","doesn't","not"],0],["The windows ___ open.",["don't","doesn't","isn't"],0],["___ the room have a balcony?",["Does","Do","Is"],0]] } },
+
+{ id:"u6", en:"Job interview", sr:"Razgovor za posao",
+  words:[["experience","iskustvo"],["skills","veštine"],["salary","plata"],["interview","razgovor za posao"],["team","tim"],["strength","jaka strana"],["weakness","slaba strana"],["apply","prijaviti se (za posao)"],["full-time","puno radno vreme"],["reliable","pouzdan"]],
+  phrases:[["Tell me about yourself.","Recite mi nešto o sebi."],["I have five years of experience.","Imam pet godina iskustva."],["I worked as a warehouse manager.","Radio sam kao menadžer magacina."],["I'm good at solving problems.","Dobar sam u rešavanju problema."],["I enjoy working in a team.","Volim da radim u timu."],["Why do you want this job?","Zašto želite ovaj posao?"],["When can you start?","Kada možete da počnete?"],["I can start next month.","Mogu da počnem sledećeg meseca."]],
+  dialog:[["A","So, tell me about yourself.","Dakle, recite mi nešto o sebi."],["B","I'm Marko. I have five years of experience in logistics.","Ja sam Marko. Imam pet godina iskustva u logistici."],["A","What did you do in your last job?","Šta ste radili na prethodnom poslu?"],["B","I worked as a warehouse manager. I led a team of ten people.","Radio sam kao menadžer magacina. Vodio sam tim od deset ljudi."],["A","What are your strengths?","Koje su vaše jake strane?"],["B","I'm reliable and I'm good at solving problems.","Pouzdan sam i dobar u rešavanju problema."],["A","When can you start?","Kada možete da počnete?"],["B","I can start next month.","Mogu da počnem sledećeg meseca."]],
+  grammar:{ title:"Prošlo vreme (Past Simple)",
+    html:"<p>Pravilni glagoli dobijaju <b>-ed</b>: work → <b>worked</b>, live → <b>lived</b>. Nepravilne učiš napamet: go → <b>went</b>, have → <b>had</b>, lead → <b>led</b>, be → <b>was / were</b>.</p><p>Odrična i pitanje: <b>didn't</b> / <b>did</b> + osnovni glagol (bez -ed): I <b>didn't work</b>. Where <b>did</b> you <b>work</b>?</p>",
+    ex:[["I worked in Germany for two years.","Radio sam u Nemačkoj dve godine."],["I was a team leader.","Bio sam vođa tima."],["I didn't have a car.","Nisam imao auto."]],
+    quiz:[["I ___ in a warehouse for three years.",["worked","work","working"],0],["She ___ a manager last year.",["was","were","is"],0],["I ___ like my last job.",["didn't","don't","wasn't"],0],["Where ___ you work before?",["did","do","were"],0]] } },
+
+{ id:"u7", en:"At work", sr:"Na poslu: kolege i sastanci",
+  words:[["meeting","sastanak"],["deadline","rok"],["task","zadatak"],["colleague","kolega"],["manager","menadžer, šef"],["schedule","raspored"],["report","izveštaj"],["busy","zauzet"],["finish","završiti"],["help","pomoći"]],
+  phrases:[["Can you help me with this?","Možeš li da mi pomogneš oko ovoga?"],["Sorry, I didn't understand.","Izvini, nisam razumeo."],["Could you repeat that, please?","Možete li to da ponovite?"],["The meeting is at ten.","Sastanak je u deset."],["I'll finish it by Friday.","Završiću to do petka."],["I'm working on it.","Radim na tome."],["Let me check.","Da proverim."],["What do you think?","Šta ti misliš?"]],
+  dialog:[["A","Good morning! Did you see the email about the meeting?","Dobro jutro! Jesi li video mejl o sastanku?"],["B","Sorry, I didn't. What time is it?","Izvini, nisam. U koliko je?"],["A","It's at ten, in room B.","U deset, u sali B."],["B","OK, thanks. Can you help me with this report?","U redu, hvala. Možeš li da mi pomogneš oko ovog izveštaja?"],["A","Sure. When is the deadline?","Naravno. Kada je rok?"],["B","It's on Friday. I'm working on it now.","U petak je. Radim na tome sada."],["A","No problem, I'll check it after lunch.","Nema problema, pogledaću ga posle ručka."],["B","Thank you! I'll finish it by Thursday.","Hvala! Završiću ga do četvrtka."]],
+  grammar:{ title:"WILL za obećanja i brze odluke",
+    html:"<p><b>I'll</b> (= I will) + glagol koristiš kad nešto obećavaš ili odlučuješ u trenutku.</p><table><tr><td><b>I'll</b> call you.</td><td>Pozvaću te.</td></tr><tr><td><b>I won't</b> be late.</td><td>Neću kasniti.</td></tr><tr><td><b>Will</b> you help me?</td><td>Hoćeš li mi pomoći?</td></tr></table>",
+    ex:[["I'll send it today.","Poslaću to danas."],["Don't worry, I'll check it.","Ne brini, proveriću."],["I won't forget.","Neću zaboraviti."]],
+    quiz:[["Don't worry, I ___ send it today.",["will","am","do"],0],["I'll ___ you later.",["call","calling","to call"],0],["___ you help me with this?",["Will","Are","Is"],0],["I ___ be late, I promise.",["won't","don't","willn't"],0]] } },
+
+{ id:"u8", en:"Phone and email", sr:"Telefon i mejl",
+  words:[["call","poziv; pozvati"],["message","poruka"],["email","mejl"],["attach","priložiti"],["reply","odgovor; odgovoriti"],["available","dostupan, slobodan"],["speak","govoriti"],["later","kasnije"],["urgent","hitno"],["number","broj"]],
+  phrases:[["Hello, this is Marko speaking.","Halo, ovde Marko."],["Can I speak to Mr. Smith?","Mogu li da razgovaram sa gospodinom Smitom?"],["He's not available right now.","On trenutno nije dostupan."],["Can I leave a message?","Mogu li da ostavim poruku?"],["I'll call you back later.","Pozvaću vas kasnije."],["Please find the file attached.","U prilogu vam šaljem fajl."],["Thank you for your quick reply.","Hvala na brzom odgovoru."],["Could you speak more slowly?","Možete li da govorite sporije?"]],
+  dialog:[["A","Good morning, Smith and Partners.","Dobro jutro, Smith i partneri."],["B","Hello, this is Marko Jović. Can I speak to Mr. Brown?","Halo, ovde Marko Jović. Mogu li da razgovaram sa g. Braunom?"],["A","I'm sorry, he's in a meeting right now.","Žao mi je, on je trenutno na sastanku."],["B","Can I leave a message?","Mogu li da ostavim poruku?"],["A","Of course.","Naravno."],["B","Please tell him I sent the offer by email.","Molim vas, recite mu da sam poslao ponudu mejlom."],["A","OK. Could you speak more slowly, please?","U redu. Možete li da govorite sporije?"],["B","Sure. I sent the offer by email. Thank you!","Naravno. Poslao sam ponudu mejlom. Hvala!"]],
+  grammar:{ title:"Sadašnje trajno vreme (Present Continuous)",
+    html:"<p>Za ono što se dešava <b>baš sada</b>: <b>am / is / are</b> + glagol sa <b>-ing</b>.</p><table><tr><td>I<b>'m calling</b> about…</td><td>Zovem u vezi sa…</td></tr><tr><td>He<b>'s working</b> today.</td><td>On danas radi.</td></tr><tr><td>What <b>are</b> you <b>doing</b>?</td><td>Šta radiš (sada)?</td></tr></table>",
+    ex:[["I'm calling about the job.","Zovem u vezi sa poslom."],["She's talking to a client.","Ona razgovara sa klijentom."],["They aren't working today.","Oni danas ne rade."]],
+    quiz:[["He ___ talking on the phone.",["is","are","does"],0],["I'm ___ about the offer.",["calling","call","calls"],0],["They ___ working today.",["aren't","isn't","don't"],0],["What ___ you doing?",["are","do","is"],0]] } },
+
+{ id:"u9", en:"At the doctor", sr:"Kod lekara i u apoteci",
+  words:[["headache","glavobolja"],["fever","temperatura (groznica)"],["pain","bol"],["medicine","lek"],["pharmacy","apoteka"],["doctor","lekar"],["appointment","termin (kod lekara)"],["sick","bolestan"],["cough","kašalj"],["tired","umoran"]],
+  phrases:[["I don't feel well.","Ne osećam se dobro."],["I have a headache.","Boli me glava."],["I'd like to make an appointment.","Želeo bih da zakažem termin."],["It hurts here.","Boli me ovde."],["How often should I take it?","Koliko često treba da ga pijem?"],["I'm allergic to penicillin.","Alergičan sam na penicilin."],["Do I need a prescription?","Da li mi treba recept?"],["Since yesterday.","Od juče."]],
+  dialog:[["A","Hello, what seems to be the problem?","Zdravo, šta vas muči?"],["B","I don't feel well. I have a fever and a bad cough.","Ne osećam se dobro. Imam temperaturu i jak kašalj."],["A","Since when?","Od kada?"],["B","Since yesterday.","Od juče."],["A","Are you allergic to any medicine?","Da li ste alergični na neki lek?"],["B","Yes, I'm allergic to penicillin.","Da, alergičan sam na penicilin."],["A","OK. Take this twice a day and drink a lot of water.","U redu. Uzimajte ovo dva puta dnevno i pijte puno vode."],["B","Thank you, doctor. Do I need a prescription?","Hvala, doktore. Da li mi treba recept?"]],
+  grammar:{ title:"HAVE / HAS i SHOULD",
+    html:"<p>Za simptome koristi <b>have</b> (I, you, we, they) ili <b>has</b> (he, she): I <b>have</b> a cold. She <b>has</b> a fever.</p><p>Za savet koristi <b>should</b> + glagol (bez <b>to</b>): You <b>should</b> rest. You <b>shouldn't</b> go to work.</p>",
+    ex:[["I have a sore throat.","Boli me grlo."],["He has a high fever.","On ima visoku temperaturu."],["You should drink a lot of water.","Treba da piješ puno vode."]],
+    quiz:[["She ___ a headache.",["has","have","is"],0],["You ___ drink a lot of water.",["should","should to","shoulds"],0],["I ___ a bad cough.",["have","has","am"],0],["You shouldn't ___ to work today.",["go","going","goes"],0]] } },
+
+{ id:"u10", en:"Free time and small talk", sr:"Slobodno vreme i ćaskanje",
+  words:[["weekend","vikend"],["weather","vreme (napolju)"],["hobby","hobi"],["movie","film"],["often","često"],["usually","obično"],["never","nikad"],["sometimes","ponekad"],["fun","zabavno"],["free","slobodan"]],
+  phrases:[["How was your weekend?","Kako ti je bilo za vikend?"],["What do you do in your free time?","Šta radiš u slobodno vreme?"],["I usually go to the gym.","Obično idem u teretanu."],["Are you free on Saturday?","Da li si slobodan u subotu?"],["I'm going to visit my parents.","Ići ću da posetim roditelje."],["The weather is nice today.","Danas je lepo vreme."],["That sounds great!","To zvuči odlično!"],["Maybe next time.","Možda sledeći put."]],
+  dialog:[["A","Hey! How was your weekend?","Ćao! Kako ti je bilo za vikend?"],["B","It was great! I went to the mountains. And you?","Bilo je super! Išao sam na planinu. A ti?"],["A","I stayed at home and watched movies.","Ostao sam kod kuće i gledao filmove."],["B","Nice. Are you free on Saturday?","Lepo. Da li si slobodan u subotu?"],["A","Yes, why?","Da, zašto?"],["B","I'm going to play football with friends. Do you want to come?","Igraću fudbal sa prijateljima. Hoćeš li da dođeš?"],["A","That sounds great!","To zvuči odlično!"],["B","Cool, see you on Saturday.","Super, vidimo se u subotu."]],
+  grammar:{ title:"GOING TO i koliko često",
+    html:"<p>Za planove: <b>am / is / are going to</b> + glagol. I<b>'m going to</b> visit my parents.</p><p>Reči za učestalost stoje <b>ispred glavnog glagola</b>: I <b>usually</b> go… / She <b>never</b> drinks coffee. Ali posle <b>be</b>: I'm <b>always</b> tired.</p><table><tr><td><b>always</b></td><td>uvek</td></tr><tr><td><b>usually</b></td><td>obično</td></tr><tr><td><b>often</b></td><td>često</td></tr><tr><td><b>sometimes</b></td><td>ponekad</td></tr><tr><td><b>never</b></td><td>nikad</td></tr></table>",
+    ex:[["We're going to watch a movie.","Gledaćemo film."],["I often go swimming.","Često idem na plivanje."],["He never works on Sunday.","On nikad ne radi nedeljom."]],
+    quiz:[["I'm ___ to visit my parents.",["going","go","goes"],0],["She ___ goes to the gym on Monday.",["usually","usual","is usually"],0],["We are going to ___ a movie.",["watch","watching","watched"],0],["I ___ drink coffee at night.",["never","am never","nothing"],0]] } }
+];
+/* Compact unit format: "en=sr|en=sr", dialog "A:en=sr|B:en=sr" */
+function SP(s){ return s.split("|").map(x=>{ const i=x.indexOf("="); return [x.slice(0,i).trim(), x.slice(i+1).trim()]; }); }
+function U(id,lvl,en,sr,w,p,d,g){
+  return { id, lvl, en, sr, words:SP(w), phrases:SP(p),
+    dialog:d.split("|").map(x=>{ const who=x[0]; const r=x.slice(2); const i=r.indexOf("="); return [who, r.slice(0,i).trim(), r.slice(i+1).trim()]; }),
+    grammar:{ title:g.t, html:g.h, ex:SP(g.ex), quiz:g.q } };
+}
+
+const UNITS_A1 = [
+U("a1u1","A1","Hello and goodbye","Pozdravi i osnovne reči",
+ "hello=zdravo|goodbye=doviđenja|please=molim|thank you=hvala|sorry=izvini|yes=da|no=ne|one=jedan|two=dva|ten=deset",
+ "Good morning.=Dobro jutro.|How are you?=Kako si?|I'm fine, thank you.=Dobro sam, hvala.|See you tomorrow.=Vidimo se sutra.|Excuse me.=Izvinite.|I don't understand.=Ne razumem.",
+ "A:Good morning! How are you?=Dobro jutro! Kako si?|B:Good morning! I'm fine, thank you. And you?=Dobro jutro! Dobro sam, hvala. A ti?|A:I'm good, thanks.=Dobro sam, hvala.|B:Sorry, what's your name?=Izvini, kako se zoveš?|A:My name is Tom.=Zovem se Tom.|B:Nice to meet you, Tom. See you tomorrow!=Drago mi je, Tome. Vidimo se sutra!",
+ {t:"Lične zamenice: I, you, he, she…",
+  h:"<table><tr><td><b>I</b></td><td>ja</td></tr><tr><td><b>you</b></td><td>ti / vi</td></tr><tr><td><b>he</b></td><td>on</td></tr><tr><td><b>she</b></td><td>ona</td></tr><tr><td><b>it</b></td><td>ono (stvar, životinja)</td></tr><tr><td><b>we</b></td><td>mi</td></tr><tr><td><b>they</b></td><td>oni / one</td></tr></table><p><b>I</b> se uvek piše velikim slovom. U engleskom zamenica <b>mora</b> da stoji ispred glagola: „Dobro sam“ = <b>I</b>'m fine.</p>",
+  ex:"I am Ana.=Ja sam Ana.|They are my friends.=Oni su moji prijatelji.|It is cold.=Hladno je.",
+  q:[["___ am Marko.",["I","Me","My"],0,"Kao subjekat na početku ide I (ja)."],["She is my sister. ___ is nice.",["She","He","It"],0,"Za žensku osobu: she."],["Marko and I? ___ are friends.",["We","They","You"],0,"Ja + neko drugi = we (mi)."],["Two plus eight is ___.",["ten","two","one"],0,"2 + 8 = 10, ten."]]}),
+
+U("a1u2","A1","Family","Porodica",
+ "mother=majka|father=otac|brother=brat|sister=sestra|son=sin|daughter=ćerka|husband=muž|wife=supruga|children=deca|kind=ljubazan, dobar",
+ "This is my wife.=Ovo je moja supruga.|I have two children.=Imam dvoje dece.|My brother lives in Germany.=Moj brat živi u Nemačkoj.|Do you have brothers or sisters?=Imaš li braću ili sestre?|She is very kind.=Ona je veoma ljubazna.|How old is your son?=Koliko godina ima tvoj sin?",
+ "A:Is this your family?=Je li ovo tvoja porodica?|B:Yes, this is my wife and these are my children.=Da, ovo je moja supruga, a ovo su moja deca.|A:How old are they?=Koliko imaju godina?|B:My son is ten and my daughter is six.=Sin ima deset, a ćerka šest godina.|A:Do you have brothers or sisters?=Imaš li braću ili sestre?|B:I have one brother. He lives in Germany.=Imam jednog brata. On živi u Nemačkoj.",
+ {t:"My, your, his, her i HAVE / HAS",
+  h:"<table><tr><td><b>my</b></td><td>moj</td></tr><tr><td><b>your</b></td><td>tvoj / vaš</td></tr><tr><td><b>his</b></td><td>njegov</td></tr><tr><td><b>her</b></td><td>njen</td></tr><tr><td><b>our</b></td><td>naš</td></tr><tr><td><b>their</b></td><td>njihov</td></tr></table><p>„Imati“: I / you / we / they <b>have</b>, ali he / she / it <b>has</b>.</p>",
+  ex:"My sister is a doctor.=Moja sestra je lekar.|His wife is from Italy.=Njegova supruga je iz Italije.|She has a son.=Ona ima sina.",
+  q:[["This is ___ wife. (moja)",["my","me","I"],0,"Moj / moja = my."],["Peter loves ___ daughter.",["his","her","he"],0,"Peter je muškarac: njegov = his."],["Ana and ___ husband live in Novi Sad.",["her","his","she"],0,"Ana je žena: njen = her."],["She ___ two sons.",["has","have","is"],0,"Uz he / she / it ide has."]]}),
+
+U("a1u3","A1","My day","Moj dan",
+ "wake up=probuditi se|shower=tuš|go to work=ići na posao|lunch=ručak|dinner=večera|evening=veče|morning=jutro|sleep=spavati|every day=svaki dan|home=kuća, dom",
+ "I get up at seven.=Ustajem u sedam.|I go to work by bus.=Idem na posao autobusom.|I have lunch at one.=Ručam u jedan.|I come home at five.=Dolazim kući u pet.|I watch TV in the evening.=Uveče gledam televiziju.|I go to bed at eleven.=Idem na spavanje u jedanaest.",
+ "A:What time do you get up?=U koliko ustaješ?|B:I get up at six.=Ustajem u šest.|A:Wow, early! How do you go to work?=Vau, rano! Kako ideš na posao?|B:I go to work by car.=Idem na posao kolima.|A:And what do you do in the evening?=A šta radiš uveče?|B:I cook dinner and watch TV with my family.=Kuvam večeru i gledam televiziju sa porodicom.",
+ {t:"Sadašnje vreme (Present Simple)",
+  h:"<p>Za navike i ono što radiš redovno.</p><table><tr><td>I / you / we / they</td><td><b>work</b></td></tr><tr><td>he / she / it</td><td><b>works</b> (+s)</td></tr></table><p>Posle -ch, -sh, -o dodaješ <b>-es</b>: watch → watch<b>es</b>, go → go<b>es</b>. Pitanje: <b>Do</b> you work? <b>Does</b> she work?</p>",
+  ex:"I work every day.=Radim svaki dan.|He works in a bank.=On radi u banci.|Do you drink coffee?=Piješ li kafu?",
+  q:[["She ___ up at seven.",["gets","get","getting"],0,"Uz she glagol dobija -s: gets."],["I ___ to work by bus.",["go","goes","going"],0,"Uz I nema -s: go."],["___ you work on Saturday?",["Do","Does","Are"],0,"Pitanje sa you počinje sa Do."],["He ___ TV in the evening.",["watches","watch","watchs"],0,"Posle -ch dodajemo -es: watches."]]}),
+
+U("a1u4","A1","Food and drink","Hrana i piće",
+ "bread=hleb|milk=mleko|meat=meso|fish=riba|fruit=voće|vegetables=povrće|juice=sok|egg=jaje|cheese=sir|thirsty=žedan",
+ "I like fish.=Volim ribu.|I don't eat meat.=Ne jedem meso.|Do you want some juice?=Hoćeš li malo soka?|I'm thirsty.=Žedan sam.|This is my favorite food.=Ovo je moja omiljena hrana.|Can I have some bread, please?=Mogu li dobiti malo hleba?",
+ "A:Are you hungry?=Jesi li gladan?|B:Yes, a little. What is there?=Da, malo. Šta ima?|A:We have eggs, cheese and bread.=Imamo jaja, sir i hleb.|B:Great, I like eggs.=Super, volim jaja.|A:Do you want some juice?=Hoćeš li malo soka?|B:No, thanks. Can I have some water?=Ne, hvala. Mogu li dobiti vode?",
+ {t:"Some / any i množina",
+  h:"<p><b>some</b> = malo, nešto (u potvrdnoj rečenici). <b>any</b> = u pitanju i odričnoj rečenici.</p><p>Množina: dodaj <b>-s</b>: egg → egg<b>s</b>. Nepravilno: child → <b>children</b>, man → <b>men</b>, woman → <b>women</b>.</p>",
+  ex:"There is some cheese.=Ima malo sira.|We don't have any bread.=Nemamo hleba.|I like apples.=Volim jabuke.",
+  q:[["I'd like ___ bread.",["some","any","a"],0,"U potvrdnoj rečenici: some."],["Do you have ___ milk?",["any","some","a"],0,"U pitanju obično: any."],["I have two ___.",["eggs","egg","egges"],0,"Množina: egg → eggs."],["We don't have ___ sugar.",["any","some","many"],0,"U odričnoj rečenici: any."]]}),
+
+U("a1u5","A1","Days and time","Dani i sati",
+ "Monday=ponedeljak|Friday=petak|Sunday=nedelja (dan)|today=danas|tomorrow=sutra|yesterday=juče|week=sedmica|month=mesec|hour=sat (60 minuta)|early=rano",
+ "What time is it?=Koliko je sati?|It's half past three.=Pola četiri je.|See you on Monday.=Vidimo se u ponedeljak.|I'm free tomorrow.=Sutra sam slobodan.|The shop opens at nine.=Prodavnica se otvara u devet.|Sorry, I'm late.=Izvini, kasnim.",
+ "A:Excuse me, what time is it?=Izvinite, koliko je sati?|B:It's half past three.=Pola četiri je.|A:Thank you. Is the bank open today?=Hvala. Da li banka danas radi?|B:No, it's Sunday. It opens on Monday at eight.=Ne, nedelja je. Otvara se u ponedeljak u osam.|A:Oh, OK. Thanks!=A, dobro. Hvala!|B:You're welcome. Have a nice day!=Nema na čemu. Prijatan dan!",
+ {t:"At, on, in za vreme",
+  h:"<table><tr><td><b>at</b> + sat</td><td>at five, at night</td></tr><tr><td><b>on</b> + dan</td><td>on Monday, on Friday</td></tr><tr><td><b>in</b> + mesec, godina, deo dana</td><td>in May, in 2025, in the morning</td></tr></table><p>Dani i meseci se pišu <b>velikim</b> slovom: Monday, May.</p>",
+  ex:"The shop opens at nine.=Prodavnica se otvara u devet.|See you on Friday.=Vidimo se u petak.|I was born in June.=Rođen sam u junu.",
+  q:[["The meeting is ___ Monday.",["on","in","at"],0,"Uz dane: on."],["I get up ___ seven o'clock.",["at","on","in"],0,"Uz tačno vreme: at."],["My birthday is ___ May.",["in","on","at"],0,"Uz mesece: in."],["I work ___ the morning.",["in","on","at"],0,"In the morning, in the evening."]]}),
+
+U("a1u6","A1","Numbers and prices","Brojevi i cene",
+ "three=tri|five=pet|seven=sedam|nine=devet|eleven=jedanaest|fifteen=petnaest|twenty=dvadeset|fifty=pedeset|hundred=sto|money=novac",
+ "How much is it?=Koliko košta?|It's five euros.=Pet evra.|That's too expensive.=To je preskupo.|Here you are.=Izvolite.|I need some money.=Treba mi malo novca.|I'm thirty years old.=Imam trideset godina.",
+ "B:Hello! How much is this bag?=Zdravo! Koliko košta ova torba?|A:It's twenty euros.=Dvadeset evra.|B:That's too expensive. And this one?=To je preskupo. A ova?|A:This one is nine euros.=Ova je devet evra.|B:OK, I'll take it. Here you are.=U redu, uzeću je. Izvolite.|A:Thank you! Have a nice day.=Hvala! Prijatan dan.",
+ {t:"Brojevi i godine",
+  h:"<table><tr><td>13 <b>thirteen</b></td><td>30 <b>thirty</b></td></tr><tr><td>15 <b>fifteen</b></td><td>50 <b>fifty</b></td></tr><tr><td>21 <b>twenty-one</b></td><td>100 <b>a hundred</b></td></tr></table><p><b>-teen</b> = 13–19, <b>-ty</b> = desetice. Pazi na naglasak: thir<b>TEEN</b> / <b>THIR</b>ty.</p><p>Godine: <b>I'm 30</b> (years old). Ne kaže se <s>I have 30 years</s>.</p>",
+  ex:"I'm twenty-five.=Imam dvadeset pet godina.|It costs fifteen euros.=Košta petnaest evra.|There are fifty people.=Ima pedeset ljudi.",
+  q:[["I ___ thirty years old.",["am","have","has"],0,"Godine se kažu sa be: I am 30."],["50 = ___",["fifty","fifteen","five"],0,"-ty su desetice: fifty = 50."],["13 = ___",["thirteen","thirty","three"],0,"-teen je 13–19: thirteen."],["How ___ is it?",["much","many","old"],0,"Cena: How much is it?"]]}),
+
+U("a1u7","A1","Home","Kuća i stvari",
+ "house=kuća|flat=stan|kitchen=kuhinja|bathroom=kupatilo|bedroom=spavaća soba|door=vrata|window=prozor|chair=stolica|bed=krevet|big=veliki",
+ "I live in a flat.=Živim u stanu.|There is a big kitchen.=Ima velika kuhinja.|Where is the bathroom?=Gde je kupatilo?|My phone is on the table.=Moj telefon je na stolu.|Is there a garage?=Ima li garaža?|Close the window, please.=Zatvori prozor, molim te.",
+ "A:Do you live in a house or a flat?=Živiš li u kući ili u stanu?|B:I live in a flat in the city center.=Živim u stanu u centru grada.|A:Is it big?=Je li veliki?|B:Not very. There is a kitchen, a bathroom and two bedrooms.=Ne baš. Ima kuhinju, kupatilo i dve spavaće sobe.|A:Is there a garage?=Ima li garažu?|B:No, but I park my car on the street.=Nema, ali parkiram auto na ulici.",
+ {t:"There is / there are i predlozi mesta",
+  h:"<p><b>there is</b> + jednina (ima jedan), <b>there are</b> + množina (ima više).</p><table><tr><td><b>in</b></td><td>u</td></tr><tr><td><b>on</b></td><td>na</td></tr><tr><td><b>under</b></td><td>ispod</td></tr><tr><td><b>next to</b></td><td>pored</td></tr></table>",
+  ex:"There is a chair in the room.=U sobi je stolica.|There are three windows.=Ima tri prozora.|The cat is under the bed.=Mačka je ispod kreveta.",
+  q:[["There ___ a big kitchen.",["is","are","be"],0,"Jednina: there is."],["There ___ two bedrooms.",["are","is","have"],0,"Množina: there are."],["The phone is ___ the table. (na)",["on","in","under"],0,"Na površini: on."],["The keys are ___ the bag. (u)",["in","on","at"],0,"Unutra: in."]]})
+];
+
+const UNITS_B1 = [
+U("b1u1","B1","Life experiences","Iskustva",
+ "abroad=u inostranstvu|already=već|yet=još, već (u pitanju)|just=upravo|recently=nedavno|achievement=dostignuće|improve=poboljšati|travel=putovati|opportunity=prilika|so far=do sada",
+ "Have you ever been to London?=Da li si ikada bio u Londonu?|I've never tried sushi.=Nikada nisam probao suši.|I've just finished work.=Upravo sam završio posao.|I haven't decided yet.=Još nisam odlučio.|I've worked here for three years.=Radim ovde tri godine.|It was a great opportunity.=Bila je to odlična prilika.",
+ "A:Have you ever worked abroad?=Da li si ikada radio u inostranstvu?|B:Yes, I have. I worked in Austria for two years.=Jesam. Radio sam u Austriji dve godine.|A:Really? How was it?=Stvarno? Kako je bilo?|B:It was hard at first, but my English improved a lot.=Bilo je teško na početku, ali mi se engleski mnogo popravio.|A:Have you been back since then?=Jesi li se vraćao od tada?|B:Not yet, but I've already planned a trip for next summer.=Još nisam, ali sam već isplanirao put za sledeće leto.",
+ {t:"Present Perfect: have + 3. oblik",
+  h:"<p><b>have / has + 3. oblik glagola</b> (worked, been, seen, done).</p><p>Koristiš ga za: iskustva u životu (<b>ever / never</b>), nešto što se upravo desilo (<b>just</b>), već / još (<b>already / yet</b>).</p><p>Kad kažeš <b>kada</b> se desilo (yesterday, in 2019, last week) → koristi <b>Past Simple</b>: I saw him yesterday.</p>",
+  ex:"I've visited Italy twice.=Bio sam u Italiji dva puta.|Have you finished yet?=Jesi li već završio?|She has just left.=Upravo je otišla.",
+  q:[["Have you ever ___ to Paris?",["been","went","go"],0,"Posle have ide 3. oblik: been."],["I ___ him yesterday.",["saw","have seen","seen"],0,"Uz yesterday ide Past Simple."],["She hasn't called ___.",["yet","already","just"],0,"Yet stoji na kraju odrične rečenice."],["We've ___ finished. The report is ready.",["just","yet","ever"],0,"Just = upravo, stoji između have i glagola."]]}),
+
+U("b1u2","B1","Plans and the future","Planovi i budućnost",
+ "unless=osim ako|probably=verovatno|definitely=sigurno|arrange=dogovoriti|postpone=odložiti|book=rezervisati|decide=odlučiti|expect=očekivati|in advance=unapred|on time=na vreme",
+ "If it rains, we'll stay at home.=Ako pada kiša, ostaćemo kod kuće.|I'll probably be late.=Verovatno ću zakasniti.|We're meeting the client on Tuesday.=Sa klijentom se vidimo u utorak.|Let's book it in advance.=Hajde da to rezervišemo unapred.|Can we postpone the meeting?=Možemo li da odložimo sastanak?|I'll let you know.=Javiću ti.",
+ "A:What are you doing this weekend?=Šta radiš ovog vikenda?|B:I'm visiting my cousins in Niš.=Idem kod rođaka u Niš.|A:Are you going by train?=Ideš li vozom?|B:If the tickets are cheap, I'll take the train. If not, I'll drive.=Ako su karte jeftine, ići ću vozom. Ako ne, voziću.|A:Sounds good. Let me know when you're back.=Zvuči dobro. Javi mi kad se vratiš.|B:Sure, I'll let you know.=Naravno, javiću ti.",
+ {t:"Prvi kondicional i planovi",
+  h:"<p><b>If + sadašnje vreme, will + glagol</b>: If it rains, I<b>'ll</b> stay home. Posle <b>if</b> nikad ne ide will.</p><p>Dogovoren plan (u kalendaru): <b>Present Continuous</b> – I<b>'m meeting</b> him at 5. Odluka ili predviđanje: <b>will</b>. <b>Unless</b> = if not (osim ako).</p>",
+  ex:"If you need help, call me.=Ako ti treba pomoć, zovi me.|I'm flying to Berlin on Friday.=U petak letim za Berlin.|I'll call you when I arrive.=Zvaću te kad stignem.",
+  q:[["If you ___ early, we'll go together.",["come","will come","came"],0,"Posle if ide sadašnje vreme, ne will."],["If it's sunny, we ___ to the lake.",["'ll go","go","went"],0,"U drugom delu: will + glagol."],["I ___ my dentist tomorrow at 4. It's arranged.",["'m seeing","see","saw"],0,"Dogovoren plan: Present Continuous."],["We won't finish on time ___ we work late.",["unless","if","when"],0,"Unless = osim ako."]]}),
+
+U("b1u3","B1","Rules and advice","Pravila i saveti",
+ "allowed=dozvoljeno|forbidden=zabranjeno|rule=pravilo|safety=bezbednost|wear=nositi (odeću)|required=obavezno|advice=savet|careful=pažljiv|necessary=neophodno|permission=dozvola",
+ "You have to wear a helmet.=Moraš da nosiš kacigu.|You don't have to come early.=Ne moraš da dođeš rano.|You mustn't smoke here.=Ovde ne smeš da pušiš.|You should talk to your manager.=Trebalo bi da razgovaraš sa menadžerom.|Are we allowed to park here?=Da li smemo da parkiramo ovde?|Be careful, the floor is wet.=Pazi, pod je mokar.",
+ "A:Welcome to the team. Let me explain the rules.=Dobrodošao u tim. Da ti objasnim pravila.|B:Thanks. Do I have to wear a uniform?=Hvala. Da li moram da nosim uniformu?|A:Yes, and you have to wear safety shoes in the warehouse.=Da, i u magacinu moraš da nosiš zaštitne cipele.|B:OK. Can I take a break whenever I want?=U redu. Mogu li da pravim pauzu kad hoću?|A:No, breaks are at ten and at two. And you mustn't use your phone near the machines.=Ne, pauze su u deset i u dva. I ne smeš da koristiš telefon blizu mašina.|B:Got it. Who should I ask if I have a problem?=Jasno. Koga da pitam ako imam problem?",
+ {t:"Must, have to, should",
+  h:"<table><tr><td><b>have to / must</b></td><td>moram</td></tr><tr><td><b>mustn't</b></td><td>ne smem (zabrana)</td></tr><tr><td><b>don't have to</b></td><td>ne moram (nije obavezno)</td></tr><tr><td><b>should</b></td><td>trebalo bi (savet)</td></tr></table><p>Pazi: <b>mustn't</b> i <b>don't have to</b> znače potpuno različito! Uz he / she: <b>has to</b>.</p>",
+  ex:"I have to finish this today.=Moram ovo da završim danas.|You don't have to pay.=Ne moraš da platiš.|You should see a doctor.=Trebalo bi da odeš kod lekara.",
+  q:[["You ___ smoke here. It's forbidden.",["mustn't","don't have to","shouldn't to"],0,"Zabrana = mustn't."],["It's Sunday, so I ___ get up early.",["don't have to","mustn't","have"],0,"Nije obavezno = don't have to."],["You look tired. You ___ go home.",["should","must to","have"],0,"Savet = should + glagol."],["She ___ work on Saturdays. It's in her contract.",["has to","have to","must to"],0,"Uz she: has to."]]}),
+
+U("b1u4","B1","Telling a story","Pričanje priče",
+ "suddenly=iznenada|while=dok|happen=desiti se|accident=nezgoda|notice=primetiti|fortunately=srećom|unfortunately=nažalost|lose=izgubiti|find=naći|in the end=na kraju",
+ "What happened?=Šta se desilo?|I was driving to work when it started to snow.=Vozio sam na posao kad je počeo sneg.|Suddenly, the lights went out.=Iznenada je nestalo struje.|Fortunately, nobody was hurt.=Srećom, niko nije povređen.|I lost my wallet on the bus.=Izgubio sam novčanik u autobusu.|You won't believe what happened.=Nećeš verovati šta se desilo.",
+ "A:You look stressed. What happened?=Izgledaš pod stresom. Šta se desilo?|B:I was waiting for the bus when I noticed my wallet was gone.=Čekao sam autobus kad sam primetio da nemam novčanik.|A:Oh no! Did you find it?=O ne! Jesi li ga našao?|B:Not at first. I called the bus company while I was walking home.=Ne odmah. Pozvao sam prevoznika dok sam išao kući.|A:And?=I?|B:Fortunately, a driver found it. I picked it up this morning.=Srećom, vozač ga je našao. Preuzeo sam ga jutros.",
+ {t:"Past Continuous i Past Simple",
+  h:"<p><b>was / were + -ing</b> = radnja koja je trajala u prošlosti. <b>Past Simple</b> = kratka radnja koja ju je prekinula.</p><p>I <b>was cooking</b> when the phone <b>rang</b>. (Kuvao sam kad je zazvonio telefon.)</p><p><b>While</b> + trajna radnja: While I was driving, …</p>",
+  ex:"I was sleeping when the alarm rang.=Spavao sam kad je zazvonio alarm.|She was working while I was cooking.=Ona je radila dok sam ja kuvao.|What were you doing?=Šta si radio?",
+  q:[["I ___ TV when you called.",["was watching","watched","am watching"],0,"Radnja u toku u prošlosti: was + -ing."],["They were having dinner when the lights ___ out.",["went","were going","go"],0,"Kratka radnja koja prekida: Past Simple."],["___ I was driving, I listened to music.",["While","During","Since"],0,"While + trajna radnja."],["What ___ you doing at 8 last night?",["were","was","did"],0,"Uz you: were."]]}),
+
+U("b1u5","B1","Comparing options","Poređenje i izbor",
+ "cheaper=jeftiniji|better=bolji|worse=gori|the best=najbolji|quality=kvalitet|option=opcija|compare=uporediti|advantage=prednost|disadvantage=mana, nedostatak|worth it=isplati se",
+ "This one is cheaper than that one.=Ovaj je jeftiniji od onog.|Which one is better?=Koji je bolji?|It's the best option for us.=To je najbolja opcija za nas.|It's not as good as I expected.=Nije dobro koliko sam očekivao.|Is it worth it?=Da li se isplati?|The quality is much better.=Kvalitet je mnogo bolji.",
+ "A:I can't decide between these two phones.=Ne mogu da se odlučim između ova dva telefona.|B:Which one is cheaper?=Koji je jeftiniji?|A:The black one, but the white one has a better camera.=Crni, ali beli ima bolju kameru.|B:Is the camera important to you?=Da li ti je kamera važna?|A:Not really. I mostly use it for calls and messages.=Ne baš. Uglavnom ga koristim za pozive i poruke.|B:Then the black one is the best option. The white one isn't worth it.=Onda je crni najbolja opcija. Beli se ne isplati.",
+ {t:"Poređenje prideva",
+  h:"<table><tr><td>kratki</td><td>cheap → cheap<b>er</b> → the cheap<b>est</b></td></tr><tr><td>dugi</td><td>expensive → <b>more</b> expensive → <b>the most</b> expensive</td></tr><tr><td>nepravilni</td><td>good → <b>better</b> → <b>the best</b>; bad → <b>worse</b> → <b>the worst</b></td></tr></table><p>„od“ = <b>than</b>: cheaper <b>than</b>. Jednako: <b>as</b> good <b>as</b>.</p>",
+  ex:"The train is faster than the bus.=Voz je brži od autobusa.|This is the most important task.=Ovo je najvažniji zadatak.|It's as cheap as the other one.=Jeftin je kao i onaj drugi.",
+  q:[["This car is ___ than mine.",["faster","more fast","fastest"],0,"Kratak pridev: -er + than."],["It's the ___ expensive hotel in town.",["most","more","much"],0,"Dug pridev, najviši stepen: the most."],["Her English is ___ than mine.",["better","gooder","best"],0,"Good → better (nepravilno)."],["This one isn't as good ___ that one.",["as","than","like"],0,"As … as za jednakost."]]}),
+
+U("b1u6","B1","Opinions","Mišljenje i dogovor",
+ "agree=slagati se|disagree=ne slagati se|opinion=mišljenje|suggest=predložiti|point=stav, poenta|exactly=upravo tako|depend=zavisiti|compromise=kompromis|reason=razlog|convince=ubediti",
+ "In my opinion, it's a good idea.=Po mom mišljenju, to je dobra ideja.|I agree with you.=Slažem se sa tobom.|I'm not sure about that.=Nisam siguran u to.|I see your point, but...=Razumem tvoj stav, ali...|What do you suggest?=Šta predlažeš?|It depends on the price.=Zavisi od cene.",
+ "A:I think we should start the project in January.=Mislim da bi trebalo da počnemo projekat u januaru.|B:I see your point, but I'm not sure we're ready.=Razumem tvoj stav, ali nisam siguran da smo spremni.|A:Why not? What's the problem?=Zašto ne? U čemu je problem?|B:We still need two more people for the team.=Treba nam još dvoje ljudi za tim.|A:OK, so what do you suggest?=Dobro, šta onda predlažeš?|B:Let's start in February. That's a good compromise.=Hajde da počnemo u februaru. To je dobar kompromis.",
+ {t:"Kako da kažeš mišljenje",
+  h:"<p><b>I think (that)…</b> / <b>In my opinion…</b> / <b>I agree with you.</b></p><p>Česta greška: <s>I'm agree</s> → tačno je <b>I agree</b>. Odrično: <b>I don't agree</b>.</p><p>Ljubazno neslaganje: <b>I see your point, but…</b> / <b>I'm not sure about that.</b> Zavisi od = <b>depends on</b> (ne <s>of</s>).</p>",
+  ex:"I think it's too late.=Mislim da je prekasno.|I don't agree with him.=Ne slažem se sa njim.|It depends on you.=Zavisi od tebe.",
+  q:[["I ___ with you.",["agree","am agree","agreeing"],0,"Kaže se I agree (bez am)."],["I ___ agree. It's too expensive.",["don't","am not","not"],0,"Odrično: I don't agree."],["In my ___, it's a bad idea.",["opinion","think","mind"],0,"In my opinion = po mom mišljenju."],["It depends ___ the weather.",["on","of","from"],0,"Depend on (ne of)."]]})
+];
+
+const UNITS_B2 = [
+U("b2u1","B2","Negotiating","Pregovori",
+ "offer=ponuda|deal=dogovor|terms=uslovi|budget=budžet|reduce=smanjiti|increase=povećati|flexible=fleksibilan|contract=ugovor|commitment=obaveza|reasonable=razuman",
+ "If we ordered more, would you give us a discount?=Ako bismo naručili više, da li biste nam dali popust?|That's slightly above our budget.=To je malo iznad našeg budžeta.|Could you be a bit more flexible on the price?=Možete li biti malo fleksibilniji oko cene?|That sounds reasonable.=To zvuči razumno.|Let's meet halfway.=Hajde da se nađemo na pola puta.|I'll need to discuss this with my team.=Moraću ovo da prodiskutujem sa timom.",
+ "A:So, the total price is twelve thousand euros.=Dakle, ukupna cena je dvanaest hiljada evra.|B:That's slightly above our budget. Could you be more flexible?=To je malo iznad našeg budžeta. Možete li biti fleksibilniji?|A:If you signed a two-year contract, I could reduce it by ten percent.=Ako biste potpisali ugovor na dve godine, mogao bih da smanjim cenu za deset posto.|B:That sounds reasonable. Would delivery be included?=To zvuči razumno. Da li bi isporuka bila uključena?|A:I'm afraid delivery is extra, but let's meet halfway.=Bojim se da se isporuka plaća posebno, ali hajde da se nađemo na pola puta.|B:Fine. I'll need to discuss this with my team and get back to you tomorrow.=U redu. Moraću da prodiskutujem sa timom i javiću vam se sutra.",
+ {t:"Drugi kondicional",
+  h:"<p>Za zamišljene ili manje verovatne situacije: <b>If + Past Simple, would + glagol</b>.</p><p>If I <b>had</b> more time, I <b>would</b> learn Spanish. (Da imam više vremena…)</p><p>Ustaljeno: <b>If I were you</b>, … (Na tvom mestu…). U pregovorima zvuči ljubaznije od will: If you signed today, we <b>would</b> …</p>",
+  ex:"If I were you, I'd ask for more.=Na tvom mestu, tražio bih više.|If we had more staff, we would finish faster.=Da imamo više ljudi, završili bismo brže.|Would you accept this offer?=Da li biste prihvatili ovu ponudu?",
+  q:[["If I ___ more money, I would buy a house.",["had","have","would have"],0,"Drugi kondicional: if + Past Simple."],["If you signed today, we ___ give you a discount.",["would","will","did"],0,"Drugi deo: would + glagol."],["If I ___ you, I'd accept the offer.",["were","am","would be"],0,"Ustaljeno: If I were you."],["What would you do if you ___ your job?",["lost","lose","would lose"],0,"Posle if: Past Simple (lost)."]]}),
+
+U("b2u2","B2","Presentations","Prezentacije",
+ "slide=slajd|chart=grafikon|figures=podaci, brojke|growth=rast|decline=pad|significant=značajan|overview=pregled|conclusion=zaključak|highlight=istaći|audience=publika",
+ "Let me give you a quick overview.=Daću vam kratak pregled.|As you can see on this slide...=Kao što vidite na ovom slajdu...|Sales have grown significantly.=Prodaja je značajno porasla.|The project was completed in March.=Projekat je završen u martu.|I'd like to highlight three points.=Želeo bih da istaknem tri stvari.|Are there any questions?=Ima li pitanja?",
+ "A:Thank you for coming. Over to you.=Hvala što ste došli. Izvolite, vi ste na redu.|B:Good morning, everyone. Let me give you a quick overview of last quarter.=Dobro jutro svima. Daću vam kratak pregled prošlog kvartala.|A:Could you start with the sales figures?=Možete li da počnete od podataka o prodaji?|B:Of course. As you can see on this chart, sales have grown significantly.=Naravno. Kao što vidite na grafikonu, prodaja je značajno porasla.|A:That's impressive. What caused the growth?=To je impresivno. Šta je izazvalo rast?|B:Two new products were launched and our online shop was redesigned.=Lansirana su dva nova proizvoda i redizajnirana je naša onlajn prodavnica.",
+ {t:"Pasiv (trpno stanje)",
+  h:"<p><b>be + 3. oblik</b>. Koristiš ga kad je važnija radnja nego ko ju je uradio – čest je u poslovnom engleskom.</p><table><tr><td>sadašnje</td><td>is / are <b>made</b></td></tr><tr><td>prošlo</td><td>was / were <b>made</b></td></tr><tr><td>present perfect</td><td>has / have been <b>made</b></td></tr></table>",
+  ex:"The meeting was cancelled.=Sastanak je otkazan.|English is spoken here.=Ovde se govori engleski.|The order has been shipped.=Porudžbina je poslata.",
+  q:[["The report ___ sent yesterday.",["was","is","were"],0,"Prošlost, jednina: was + sent."],["These cars ___ made in Germany.",["are","is","were make"],0,"Sadašnje vreme, množina: are made."],["The project has ___ completed.",["been","be","being"],0,"Present perfect pasiv: has been + 3. oblik."],["Two products were ___ last year.",["launched","launch","launching"],0,"Posle were ide 3. oblik."]]}),
+
+U("b2u3","B2","Complaints","Žalbe i rešenja",
+ "complaint=žalba|refund=povraćaj novca|replacement=zamena|delay=kašnjenje|damaged=oštećen|apologize=izviniti se|issue=problem|resolve=rešiti|compensation=nadoknada|inconvenience=neprijatnost",
+ "I'm calling to make a complaint.=Zovem da uložim žalbu.|The package arrived damaged.=Paket je stigao oštećen.|I'd like a refund or a replacement.=Želeo bih povraćaj novca ili zamenu.|They told me it would arrive on Monday.=Rekli su mi da će stići u ponedeljak.|We apologize for the inconvenience.=Izvinjavamo se zbog neprijatnosti.|How are you going to resolve this?=Kako ćete rešiti ovo?",
+ "A:Customer service, how can I help?=Korisnička podrška, izvolite?|B:Hi, I'm calling to make a complaint. My order arrived damaged.=Zdravo, zovem da uložim žalbu. Porudžbina mi je stigla oštećena.|A:I'm very sorry to hear that. When did it arrive?=Veoma mi je žao. Kada je stigla?|B:Yesterday. And your colleague told me it would arrive last week.=Juče. A vaš kolega mi je rekao da će stići prošle nedelje.|A:I apologize for the delay. Would you like a replacement?=Izvinjavam se zbog kašnjenja. Želite li zamenu?|B:I'd prefer a refund, please.=Više bih voleo povraćaj novca.",
+ {t:"Indirektni govor",
+  h:"<p>Kad prenosiš tuđe reči, vreme ide <b>korak unazad</b>:</p><table><tr><td>\"I <b>will</b> call.\"</td><td>He said he <b>would</b> call.</td></tr><tr><td>\"I <b>am</b> busy.\"</td><td>She said she <b>was</b> busy.</td></tr><tr><td>\"We <b>can</b> help.\"</td><td>They said they <b>could</b> help.</td></tr></table><p><b>tell + osoba</b> (He told <b>me</b>…), <b>say</b> bez osobe (He said that…).</p>",
+  ex:"She said she was tired.=Rekla je da je umorna.|He told me he would help.=Rekao mi je da će pomoći.|They said it was free.=Rekli su da je besplatno.",
+  q:[["He said he ___ call me back.",["would","will","is"],0,"Will → would u indirektnom govoru."],["She told ___ that the order was late.",["me","to me","for me"],0,"Tell + osoba bez to: told me."],["They said the package ___ damaged.",["was","is","be"],0,"Is → was (korak unazad)."],["He ___ that he was sorry.",["said","told","said me"],0,"Say bez osobe: He said that…"]]}),
+
+U("b2u4","B2","Career","Karijera i razvoj",
+ "promotion=unapređenje|responsibility=odgovornost|goal=cilj|career=karijera|develop=razvijati|achieve=postići|feedback=povratna informacija|challenge=izazov|employer=poslodavac|resign=dati otkaz",
+ "I've been working here for six years.=Radim ovde već šest godina.|I'm looking for new challenges.=Tražim nove izazove.|I'd like to take on more responsibility.=Želeo bih da preuzmem više odgovornosti.|My main goal is to become a team leader.=Moj glavni cilj je da postanem vođa tima.|Could I get some feedback on my work?=Mogu li dobiti povratnu informaciju o svom radu?|I've been thinking about changing jobs.=Razmišljam o promeni posla.",
+ "A:Thanks for coming. What did you want to talk about?=Hvala što si došao. O čemu si hteo da razgovaramo?|B:I've been working here for six years, and I'm looking for new challenges.=Radim ovde šest godina i tražim nove izazove.|A:I see. What kind of challenges?=Razumem. Kakve izazove?|B:I'd like to take on more responsibility. My goal is to become a team leader.=Želeo bih da preuzmem više odgovornosti. Cilj mi je da postanem vođa tima.|A:That's great to hear. We've been planning a new team for next year.=To je odlično čuti. Planiramo novi tim za sledeću godinu.|B:That sounds perfect. What would I need to do to get the position?=To zvuči savršeno. Šta bih morao da uradim da dobijem to mesto?",
+ {t:"Present Perfect Continuous",
+  h:"<p><b>have / has been + -ing</b> – radnja je počela u prošlosti i traje do sada. Srpski tu koristi sadašnje vreme: „Radim ovde šest godina“ = I<b>'ve been working</b> here for six years.</p><p><b>for</b> + trajanje (for two years), <b>since</b> + početak (since 2019, since Monday). Pitanje: <b>How long have you been…?</b></p>",
+  ex:"I've been waiting for twenty minutes.=Čekam već dvadeset minuta.|How long have you been living here?=Koliko dugo živiš ovde?|She has been studying since morning.=Uči od jutra.",
+  q:[["I ___ been learning English for two years.",["have","has","am"],0,"Uz I: have been + -ing."],["She has been working here ___ 2019.",["since","for","from"],0,"Since + početna tačka."],["How long ___ you been waiting?",["have","are","did"],0,"How long have you been…?"],["We've been talking ___ an hour.",["for","since","during"],0,"For + trajanje."]]}),
+
+U("b2u5","B2","Discussing ideas","Diskusija i argumenti",
+ "however=međutim|although=iako|therefore=stoga|moreover=osim toga|despite=uprkos|whereas=dok (kontrast)|benefit=korist|drawback=nedostatak|evidence=dokaz|as a result=kao rezultat",
+ "Although it's expensive, it's worth it.=Iako je skupo, isplati se.|However, there is one problem.=Međutim, postoji jedan problem.|On the other hand, it saves time.=S druge strane, štedi vreme.|Despite the delay, we finished on time.=Uprkos kašnjenju, završili smo na vreme.|That's why I think we should wait.=Zato mislim da treba da sačekamo.|The main benefit is lower costs.=Glavna korist su niži troškovi.",
+ "A:Should we let people work from home?=Da li da dozvolimo ljudima da rade od kuće?|B:I think so. The main benefit is that it saves time.=Mislim da da. Glavna korist je što štedi vreme.|A:However, some people feel lonely at home.=Međutim, neki se osećaju usamljeno kod kuće.|B:That's true. On the other hand, they're often more productive.=To je tačno. S druge strane, često su produktivniji.|A:So what do you suggest?=Pa šta predlažeš?|B:Although it's not perfect, two days at home seems like a good balance.=Iako nije savršeno, dva dana od kuće deluje kao dobar balans.",
+ {t:"Veznici za argumente",
+  h:"<table><tr><td><b>although</b> + rečenica</td><td>Although it rained, we went.</td></tr><tr><td><b>despite</b> + imenica / -ing</td><td>Despite the rain, we went.</td></tr><tr><td><b>however</b>, (na početku)</td><td>However, it's expensive.</td></tr><tr><td><b>therefore / that's why</b></td><td>posledica</td></tr></table><p>Greška: <s>despite it rained</s> → <b>although</b> it rained.</p>",
+  ex:"However, it's not easy.=Međutim, nije lako.|Although he's young, he's very experienced.=Iako je mlad, veoma je iskusan.|Despite the problems, we succeeded.=Uprkos problemima, uspeli smo.",
+  q:[["___ it was raining, we went out.",["Although","Despite","However"],0,"Although + cela rečenica."],["___ the rain, we went out.",["Despite","Although","However"],0,"Despite + imenica."],["It's cheap. ___, the quality is low.",["However","Although","Despite"],0,"However na početku rečenice, sa zarezom."],["We were late, ___ we missed the train.",["so","although","despite"],0,"Posledica: so."]]})
+];
+
+const UNITS_C1 = [
+U("c1u1","C1","Diplomatic language","Diplomatski jezik",
+ "tactful=taktičan|concern=zabrinutost|clarify=razjasniti|perhaps=možda|slightly=malo, donekle|appreciate=ceniti|propose=predložiti|reconsider=preispitati|feasible=izvodljiv|alternative=alternativa",
+ "I'm afraid that might not be feasible.=Bojim se da to možda nije izvodljivo.|Would it be possible to reconsider?=Da li bi bilo moguće da to preispitamo?|I appreciate your effort, but...=Cenim tvoj trud, ali...|Could you clarify what you mean?=Možeš li da razjasniš šta misliš?|With all due respect, I see it differently.=Uz dužno poštovanje, ja to vidim drugačije.|Perhaps we could look at an alternative.=Možda bismo mogli da razmotrimo alternativu.",
+ "A:We need the whole report by tomorrow morning.=Treba nam ceo izveštaj do sutra ujutru.|B:I'm afraid that might not be feasible. The data isn't complete yet.=Bojim se da to možda nije izvodljivo. Podaci još nisu kompletni.|A:But the client is expecting it.=Ali klijent ga očekuje.|B:I understand. Perhaps we could send a short summary first?=Razumem. Možda bismo mogli prvo da pošaljemo kratak rezime?|A:Hmm, I'm not sure the client will accept that.=Hm, nisam siguran da će klijent to prihvatiti.|B:With all due respect, a rushed report could cause bigger problems. Would it be possible to ask for two more days?=Uz dužno poštovanje, izveštaj na brzinu mogao bi da napravi veće probleme. Da li bi bilo moguće tražiti još dva dana?",
+ {t:"Ublažavanje: diplomatski ton",
+  h:"<p>Na višem nivou nije dovoljno da je rečenica tačna – mora da zvuči <b>ljubazno</b>. Umesto direktnog „ne“:</p><table><tr><td><s>No, that's impossible.</s></td><td><b>I'm afraid</b> that <b>might not</b> be feasible.</td></tr><tr><td><s>You're wrong.</s></td><td>I'm not sure that's <b>quite</b> right.</td></tr><tr><td><s>Change it.</s></td><td><b>Would it be possible</b> to change it?</td></tr></table><p>Reči koje ublažavaju: <b>slightly, a bit, rather, perhaps</b>.</p>",
+  ex:"I'm afraid I can't agree.=Bojim se da se ne mogu složiti.|It might be better to wait.=Možda bi bilo bolje da sačekamo.|I'm not sure that's quite right.=Nisam siguran da je to sasvim tačno.",
+  q:[["___ that won't be possible this week.",["I'm afraid","I'm scared","I fear me"],0,"I'm afraid… = nažalost (ljubazno)."],["___ it be possible to change the date?",["Would","Will you","Do"],0,"Would it be possible…? je najljubaznije."],["The price is ___ higher than we expected.",["slightly","very much too","so"],0,"Slightly ublažava kritiku."],["___ we could try a different approach.",["Perhaps","Must","Should to"],0,"Perhaps we could… = blag predlog."]]}),
+
+U("c1u2","C1","Business idioms","Idiomi na poslu",
+ "on the same page=usaglašeni|a long shot=mala šansa|cut corners=štedeti na kvalitetu|touch base=čuti se, javiti se|the bottom line=suština|up in the air=neizvesno|get the ball rolling=pokrenuti stvari|back to square one=ispočetka|a win-win situation=svi dobijaju|think outside the box=razmišljati kreativno",
+ "Let's make sure we're on the same page.=Hajde da se uverimo da smo usaglašeni.|It's a long shot, but it's worth trying.=Šanse su male, ali vredi probati.|We can't afford to cut corners.=Ne smemo da štedimo na kvalitetu.|Let's touch base next week.=Čujmo se sledeće nedelje.|The bottom line is we need more time.=Suština je da nam treba više vremena.|Everything is still up in the air.=Sve je još neizvesno.",
+ "A:Is the new project confirmed?=Je li novi projekat potvrđen?|B:Not yet, everything is still up in the air.=Još nije, sve je još neizvesno.|A:Should we start preparing anyway?=Da li da ipak počnemo da se pripremamo?|B:Yes, let's get the ball rolling, but we can't cut corners.=Da, hajde da pokrenemo stvari, ali ne smemo da štedimo na kvalitetu.|A:Agreed. When should we meet again?=Slažem se. Kada da se ponovo vidimo?|B:Let's touch base on Monday to make sure we're on the same page.=Čujmo se u ponedeljak da se uverimo da smo usaglašeni.",
+ {t:"Kako koristiti idiome",
+  h:"<p>Idiomi se <b>ne prevode doslovno</b>. Uči ih u celoj rečenici, ne kao pojedinačne reči.</p><p>Najčešći u poslovnom engleskom: <b>on the same page</b>, <b>touch base</b>, <b>the bottom line</b>, <b>up in the air</b>.</p><p>Ne preteruj: jedan idiom u nekoliko rečenica zvuči prirodno, pet zvuči kao reklama.</p>",
+  ex:"Let's touch base tomorrow.=Čujmo se sutra.|The bottom line is it's too expensive.=Suština je da je preskupo.|We need to think outside the box.=Moramo da razmišljamo kreativno.",
+  q:[["We need to agree before the meeting. Let's get on the same ___.",["page","line","side"],0,"On the same page = usaglašeni."],["Nothing is decided. It's still up in the ___.",["air","sky","clouds"],0,"Up in the air = neizvesno."],["The plan failed. We're back to square ___.",["one","zero","first"],0,"Back to square one = ispočetka."],["Both companies benefit. It's a win-___ situation.",["win","lose","fair"],0,"Win-win = svi dobijaju."]]}),
+
+U("c1u3","C1","Regrets and hypotheticals","Žaljenje i zamišljene situacije",
+ "regret=žaliti zbog|in hindsight=gledano unazad|otherwise=inače|wish=poželeti (da je drugačije)|if only=samo da|consequence=posledica|avoid=izbeći|mistake=greška|lesson=pouka|deadline=rok",
+ "If I had known, I would have told you.=Da sam znao, rekao bih ti.|I wish I had more time.=Voleo bih da imam više vremena.|In hindsight, it was the right decision.=Gledano unazad, to je bila prava odluka.|If only I had listened to you.=Samo da sam te poslušao.|Otherwise, we would have lost the client.=Inače bismo izgubili klijenta.|I regret not taking that job.=Žao mi je što nisam prihvatio taj posao.",
+ "A:I heard you almost missed the deadline.=Čuo sam da si skoro propustio rok.|B:Yes. If I had started earlier, I wouldn't have been so stressed.=Da. Da sam počeo ranije, ne bih bio toliko pod stresom.|A:Why didn't you ask for help?=Zašto nisi tražio pomoć?|B:I wish I had. I didn't want to bother anyone.=Voleo bih da jesam. Nisam hteo nikoga da opterećujem.|A:Next time, just tell us.=Sledeći put samo reci.|B:Definitely. In hindsight, it was a good lesson.=Svakako. Gledano unazad, to je bila dobra pouka.",
+ {t:"Treći kondicional i WISH",
+  h:"<p><b>Treći kondicional</b> – prošlost koja se nije desila: <b>If + had + 3. oblik, would have + 3. oblik</b>. If I <b>had known</b>, I <b>would have come</b>.</p><table><tr><td><b>wish + Past Simple</b></td><td>sadašnjost: I wish I <b>had</b> a car.</td></tr><tr><td><b>wish + had + 3. oblik</b></td><td>prošlost: I wish I <b>had studied</b> more.</td></tr></table>",
+  ex:"If we had left earlier, we would have caught the plane.=Da smo krenuli ranije, stigli bismo na avion.|I wish I spoke French.=Voleo bih da govorim francuski.|I wish I hadn't said that.=Voleo bih da to nisam rekao.",
+  q:[["If I had known, I ___ you.",["would have told","would tell","had told"],0,"Treći kondicional: would have + 3. oblik."],["If she ___ earlier, she wouldn't have missed the train.",["had left","left","would leave"],0,"Posle if: had + 3. oblik."],["I wish I ___ more time now.",["had","have","would have"],0,"Wish za sadašnjost: Past Simple."],["I wish I ___ harder at school.",["had studied","studied","study"],0,"Žal za prošlošću: wish + had + 3. oblik."]]}),
+
+U("c1u4","C1","Professional email","Profesionalni mejl",
+ "regarding=u vezi sa|further to=nastavno na|attached=u prilogu|at your earliest convenience=čim vam bude moguće|kindly=ljubazno (molim)|confirm=potvrditi|outline=ukratko izložiti|follow up=proveriti, nastaviti temu|accordingly=u skladu s tim|request=zahtev; zatražiti",
+ "I'm writing regarding your recent order.=Pišem u vezi sa vašom nedavnom porudžbinom.|Further to our conversation, I'm sending the details.=Nastavno na naš razgovor, šaljem detalje.|Please confirm at your earliest convenience.=Molim vas potvrdite čim vam bude moguće.|I've outlined the main points below.=Ispod sam ukratko izložio glavne tačke.|I'm just following up on my previous email.=Samo proveravam u vezi sa prethodnim mejlom.|I look forward to hearing from you.=Radujem se vašem odgovoru.",
+ "A:Did you reply to the client's email?=Jesi li odgovorio na mejl klijenta?|B:Not yet. How should I start it?=Još nisam. Kako da počnem?|A:Something like: further to our call yesterday.=Nešto kao: nastavno na naš jučerašnji poziv.|B:Great. And then I outline the next steps?=Super. I onda ukratko izložim sledeće korake?|A:Exactly. And ask them to confirm by Friday.=Tačno. I zamoli ih da potvrde do petka.|B:Got it. I'll finish with: I look forward to hearing from you.=Jasno. Završiću sa: Radujem se vašem odgovoru.",
+ {t:"Formalni ton u mejlu",
+  h:"<table><tr><td>about</td><td>→ <b>regarding</b></td></tr><tr><td>ASAP</td><td>→ <b>at your earliest convenience</b></td></tr><tr><td>get</td><td>→ <b>receive</b></td></tr><tr><td>ask for</td><td>→ <b>request</b></td></tr><tr><td>Thanks</td><td>→ <b>Thank you for…</b></td></tr></table><p>Kraj mejla: I look forward to <b>hearing</b> from you – posle <b>look forward to</b> ide <b>-ing</b>!</p>",
+  ex:"Thank you for your prompt reply.=Hvala na brzom odgovoru.|Could you kindly confirm the date?=Da li biste ljubazno potvrdili datum?|Please find the invoice attached.=U prilogu vam šaljem fakturu.",
+  q:[["I look forward to ___ from you.",["hearing","hear","heard"],0,"Look forward to + -ing."],["I'm writing ___ your invoice.",["regarding","regard","about of"],0,"Regarding = u vezi sa (formalno)."],["Please find the contract ___.",["attached","attach","attaching"],0,"Please find … attached."],["___ to our meeting, here is the plan.",["Further","Farther","Following of"],0,"Further to = nastavno na."]]})
+];
+
+/* explanations for the A2 grammar quizzes, in order */
+const EXPL_A2 = {
+ u1:["Uz she ide is.","Uz we ide are.","Uz I ide am.","Pitanje sa you: Are you…?"],
+ u2:["Uz imenicu u jednini: a coffee.","Uz glagol: I'd like to + glagol.","Can I have…? = mogu li dobiti.","Posle could ide glagol bez to."],
+ u3:["Shoes je množina: are.","This = ovo (jednina, blizu).","Bags se broje: how many.","Those = one tamo (množina)."],
+ u4:["Uputstvo: glagol bez to na početku.","Next to = pored.","Between = između dve stvari.","Uputstvo: Go straight."],
+ u5:["Uz the shower (it): doesn't.","Uz I: don't.","Windows je množina: don't.","Pitanje za it: Does…?"],
+ u6:["Prošlo vreme: work → worked.","Uz she u prošlosti: was.","Odrično u prošlosti: didn't + glagol.","Pitanje u prošlosti: did."],
+ u7:["Obećanje: will + glagol.","Posle will ide glagol bez to.","Molba: Will you…?","Odrično od will: won't."],
+ u8:["Uz he: is + -ing.","Posle I'm: glagol sa -ing.","Uz they: aren't.","Sada: What are you doing?"],
+ u9:["Uz she: has.","Should + glagol bez to.","Uz I: have.","Posle shouldn't: glagol bez to."],
+ u10:["Plan: going to.","Usually stoji ispred glavnog glagola.","Posle going to: osnovni glagol.","Never stoji ispred glavnog glagola."]
+};
+UNITS_A2.forEach(u=>{ u.lvl="A2"; (u.grammar.quiz||[]).forEach((q,i)=>{ q[3]=(EXPL_A2[u.id]||[])[i]||""; }); });
+
+const UNITS = [].concat(UNITS_A1, UNITS_A2, UNITS_B1, UNITS_B2, UNITS_C1);
+
+/* placement test: 3 fixed questions per level (+1 listening generated) */
+const PLACEMENT = {
+ A1:[["My name ___ Ana.",["is","am","are"],0,"Uz my name (ono): is."],["___ you like coffee?",["Do","Does","Are"],0,"Pitanje sa you: Do."],["Šta znači „tomorrow“? ___",["sutra","juče","danas"],0,"Tomorrow = sutra."]],
+ A2:[["I ___ to the cinema yesterday.",["went","go","have gone"],0,"Uz yesterday: Past Simple (went)."],["How ___ is this jacket?",["much","many","cost"],0,"Cena: How much."],["She ___ like fish.",["doesn't","don't","isn't"],0,"Uz she: doesn't."]],
+ B1:[["Have you ever ___ sushi?",["eaten","ate","eat"],0,"Have + 3. oblik: eaten."],["If it ___ tomorrow, we'll stay home.",["rains","will rain","rained"],0,"Posle if: sadašnje vreme."],["You ___ wear a seatbelt. It's the law.",["have to","don't have to","should to"],0,"Obaveza: have to."]],
+ B2:[["If I ___ more time, I would travel more.",["had","have","will have"],0,"Drugi kondicional: if + Past Simple."],["The bridge ___ built in 1990.",["was","is","has"],0,"Pasiv u prošlosti: was built."],["___ the bad weather, the flight left on time.",["Despite","Although","However"],0,"Despite + imenica."]],
+ C1:[["If I had known, I ___ you.",["would have told","would tell","told"],0,"Treći kondicional."],["I look forward to ___ from you.",["hearing","hear","be hearing"],0,"Look forward to + -ing."],["The plan failed, so we're back to square ___.",["one","first","zero"],0,"Back to square one."]]
+};
+
+/* How words are read, in Serbian letters. CAPS = stressed syllable. "th" = tongue between teeth, "u" before a vowel = English w. */
+const PRON = Object.fromEntries(("name=nejm|country=KAN-tri|city=SI-ti|job=džob|friend=frend|family=FE-mi-li|married=ME-rid|live=liv|work=uerk|nice=najs|menu=ME-nju|bill=bil|water=UO-ter|coffee=KO-fi|table=TEJ-bl|waiter=UEJ-ter|order=OR-der|tip=tip|hungry=HAN-gri|delicious=di-LI-šes|price=prajs|cheap=čip|expensive=ik-SPEN-siv|size=sajz|shop=šop|cash=keš|receipt=ri-SIT|discount=DIS-kaunt|bag=beg|try on=traj on|airport=ER-port|ticket=TI-kit|train=trejn|station=STEJ-šn|left=left|right=rajt|straight=strejt|near=nir|far=far|passport=PES-port|room=rum|key=ki|reservation=re-zer-VEJ-šn|towel=TAU-el|broken=BROU-ken|noisy=NOJ-zi|floor=flor|breakfast=BREK-fest|check in=ček in|included=in-KLU-did|experience=ik-SPI-ri-ens|skills=skilz|salary=SE-le-ri|interview=IN-ter-vju|team=tim|strength=strength|weakness=UIK-nes|apply=e-PLAJ|full-time=ful tajm|reliable=ri-LAJ-e-bl|meeting=MI-ting|deadline=DED-lajn|task=task|colleague=KO-lig|manager=ME-ni-džer|schedule=ŠE-džul (UK) / SKE-džul (US)|report=ri-PORT|busy=BI-zi|finish=FI-niš|help=help|call=kol|message=ME-sidž|email=I-mejl|attach=e-TEČ|reply=ri-PLAJ|available=e-VEJ-le-bl|speak=spik|later=LEJ-ter|urgent=ER-džent|number=NAM-ber|headache=HED-ejk|fever=FI-ver|pain=pejn|medicine=MED-sin|pharmacy=FAR-me-si|doctor=DOK-ter|appointment=e-POJNT-ment|sick=sik|cough=kof|tired=TAJ-erd|weekend=uik-END|weather=UE-ther|hobby=HO-bi|movie=MU-vi|often=O-fen|usually=JU-žu-e-li|never=NE-ver|sometimes=SAM-tajmz|fun=fan|free=fri|hello=he-LOU|goodbye=gud-BAJ|please=pliz|thank you=THENK ju|sorry=SO-ri|yes=jes|no=nou|one=uan|two=tu|ten=ten|mother=MA-ther|father=FA-ther|brother=BRA-ther|sister=SIS-ter|son=san|daughter=DO-ter|husband=HAZ-bend|wife=uajf|children=ČIL-dren|kind=kajnd|wake up=uejk ap|shower=ŠAU-er|go to work=gou tu uerk|lunch=lanč|dinner=DI-ner|evening=IV-ning|morning=MOR-ning|sleep=slip|every day=EV-ri dej|home=houm|bread=bred|milk=milk|meat=mit|fish=fiš|fruit=frut|vegetables=VEDŽ-te-blz|juice=džus|egg=eg|cheese=čiz|thirsty=THER-sti|Monday=MAN-dej|Friday=FRAJ-dej|Sunday=SAN-dej|today=tu-DEJ|tomorrow=tu-MO-rou|yesterday=JES-ter-dej|week=uik|month=manth|hour=AU-er|early=ER-li|three=thri|five=fajv|seven=SE-ven|nine=najn|eleven=i-LE-ven|fifteen=fif-TIN|twenty=TUEN-ti|fifty=FIF-ti|hundred=HAN-dred|money=MA-ni|house=haus|flat=flet|kitchen=KI-čen|bathroom=BATH-rum|bedroom=BED-rum|door=dor|window=UIN-dou|chair=čer|bed=bed|big=big|abroad=e-BROD|already=ol-RE-di|yet=jet|just=džast|recently=RI-sent-li|achievement=e-ČIV-ment|improve=im-PRUV|travel=TRE-vl|opportunity=o-per-TJU-ni-ti|so far=sou far|unless=an-LES|probably=PRO-be-bli|definitely=DE-fi-nit-li|arrange=e-REJNDŽ|postpone=poust-POUN|book=buk|decide=di-SAJD|expect=ik-SPEKT|in advance=in ed-VENS|on time=on tajm|allowed=e-LAUD|forbidden=fer-BI-den|rule=rul|safety=SEJF-ti|wear=uer|required=ri-KUAJ-erd|advice=ed-VAJS|careful=KER-ful|necessary=NE-se-se-ri|permission=per-MI-šn|suddenly=SA-den-li|while=uajl|happen=HE-pen|accident=EK-si-dent|notice=NOU-tis|fortunately=FOR-če-net-li|unfortunately=an-FOR-če-net-li|lose=luz|find=fajnd|in the end=in thi end|cheaper=ČI-per|better=BE-ter|worse=uers|the best=the best|quality=KUO-li-ti|option=OP-šn|compare=kem-PER|advantage=ed-VEN-tidž|disadvantage=dis-ed-VEN-tidž|worth it=uerth it|agree=e-GRI|disagree=dis-e-GRI|opinion=e-PI-njen|suggest=se-DŽEST|point=pojnt|exactly=ig-ZEKT-li|depend=di-PEND|compromise=KOM-pre-majz|reason=RI-zn|convince=ken-VINS|offer=O-fer|deal=dil|terms=termz|budget=BA-džit|reduce=ri-DJUS|increase=in-KRIS|flexible=FLEK-si-bl|contract=KON-trekt|commitment=ke-MIT-ment|reasonable=RI-zne-bl|slide=slajd|chart=čart|figures=FI-gerz|growth=grouth|decline=di-KLAJN|significant=sig-NI-fi-kent|overview=OU-ver-vju|conclusion=ken-KLU-žn|highlight=HAJ-lajt|audience=O-di-ens|complaint=kem-PLEJNT|refund=RI-fand|replacement=ri-PLEJS-ment|delay=di-LEJ|damaged=DE-midžd|apologize=e-PO-le-džajz|issue=I-šu|resolve=ri-ZOLV|compensation=kom-pen-SEJ-šn|inconvenience=in-ken-VI-ni-ens|promotion=pre-MOU-šn|responsibility=ri-spon-se-BI-li-ti|goal=goul|career=ke-RIR|develop=di-VE-lep|achieve=e-ČIV|feedback=FID-bek|challenge=ČE-lindž|employer=im-PLOJ-er|resign=ri-ZAJN|however=hau-E-ver|although=ol-THOU|therefore=THER-for|moreover=mor-OU-ver|despite=di-SPAJT|whereas=uer-EZ|benefit=BE-ne-fit|drawback=DRO-bek|evidence=E-vi-dens|as a result=ez e ri-ZALT|tactful=TEKT-ful|concern=ken-SERN|clarify=KLE-ri-faj|perhaps=per-HEPS|slightly=SLAJT-li|appreciate=e-PRI-ši-ejt|propose=pre-POUZ|reconsider=ri-ken-SI-der|feasible=FI-ze-bl|alternative=ol-TER-ne-tiv|on the same page=on the sejm pejdž|a long shot=e long šot|cut corners=kat KOR-nerz|touch base=tač bejs|the bottom line=the BO-tem lajn|up in the air=ap in thi er|get the ball rolling=get the bol ROU-ling|back to square one=bek tu skuer uan|a win-win situation=e uin uin si-ču-EJ-šn|think outside the box=think aut-SAJD the boks|regret=ri-GRET|in hindsight=in HAJND-sajt|otherwise=A-ther-uajz|wish=uiš|if only=if OUN-li|consequence=KON-si-kuens|avoid=e-VOJD|mistake=mi-STEJK|lesson=LE-sn|regarding=ri-GAR-ding|further to=FER-ther tu|attached=e-TEČT|at your earliest convenience=et jor ER-li-est ken-VI-ni-ens|kindly=KAJND-li|confirm=ken-FERM|outline=AUT-lajn|follow up=FO-lou ap|accordingly=e-KOR-ding-li|request=ri-KUEST").split("|").map(x=>{ const i=x.indexOf("="); return [x.slice(0,i), x.slice(i+1)]; }));
+
+/* English alphabet: letter name read in Serbian letters */
+const ALPHABET = [["A","ej"],["B","bi"],["C","si"],["D","di"],["E","i"],["F","ef"],["G","dži"],["H","ejč"],["I","aj"],["J","džej"],["K","kej"],["L","el"],["M","em"],["N","en"],["O","ou"],["P","pi"],["Q","kju"],["R","ar"],["S","es"],["T","ti"],["U","ju"],["V","vi"],["W","DA-bl-ju"],["X","eks"],["Y","uaj"],["Z","zed (UK) / zi (US)"]];
+
+/* Reading rules: [rule, explanation, examples "word=reading"] */
+const READ_RULES = [
+ ["Tiho E na kraju","E na kraju reči se ne čita, ali menja samoglasnik ispred: a → ej, i → aj, o → ou, u → ju.","cake=kejk|make=mejk|time=tajm|nice=najs|home=houm|cute=kjut"],
+ ["EE i EA = i","Dva E ili EA najčešće se čitaju kao dugo i.","tree=tri|meet=mit|sea=si|eat=it|cheap=čip"],
+ ["OO = u","OO je najčešće dugo u, a ispred K kratko u.","food=fud|room=rum|school=skul|book=buk|look=luk"],
+ ["TH","Vrh jezika između zuba. Nema ga u srpskom: nije ni t ni s.","think=think|three=thri|this=this|mother=MA-ther"],
+ ["SH, CH, PH","SH = š, CH = č, PH = f.","shop=šop|cheese=čiz|phone=foun|photo=FOU-tou"],
+ ["-TION i -SION","Na kraju reči se čita šn (ili žn).","station=STEJ-šn|information=in-fer-MEJ-šn|decision=di-SI-žn"],
+ ["W i WH","Čita se kao kratko u, usne skupljene: ne kao v.","water=UO-ter|week=uik|what=uot|where=uer"],
+ ["Nečujna slova","Neka slova se ne čuju: K ispred N, W ispred R, B posle M, GH često.","know=nou|write=rajt|climb=klajm|night=najt|daughter=DO-ter"],
+ ["A u zatvorenom slogu","A između suglasnika je najčešće otvoreno e (između a i e).","cat=ket|bag=beg|cash=keš|black=blek"],
+ ["IR, UR, ER","Čitaju se slično kao er, bez jakog r.","bird=berd|nurse=ners|work=uerk|first=ferst"],
+ ["Kraj -ED","Posle t/d čita se id, posle bezvučnih t, inače d.","wanted=UON-tid|worked=uerkt|lived=livd|played=plejd"]
+];
+
+/* ================= ENV ================= */
+const IN_CLAUDE = !!(window.claude && window.claude.use);
+const AI_URL = "https://claude.ai/artifact/SgQqL94VBhqgy8QPQGZffe";
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const IS_STANDALONE = window.navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+const LV = ["A1","A2","B1","B2","C1"];
+const LVN = {A1:"Početnik",A2:"Osnovni",B1:"Srednji",B2:"Viši srednji",C1:"Napredni"};
+const LESSONS = [["words","Reči"],["phrases","Fraze"],["dialog","Dijalog"],["grammar","Gramatika"]];
+const SKILLS = [["w","Reči"],["s","Rečenice"],["l","Slušanje"],["g","Gramatika"],["d","Dijalozi"],["p","Izgovor"],["sp","Spelovanje"]];
+const SKILL_TIP = {
+  w:"Uči reči kroz kartice i kucanje. Kucanje najbolje utvrđuje reč.",
+  s:"Slaži rečenice i pazi na red reči: ko → radi šta → gde → kada.",
+  l:"Slušaj bez gledanja teksta. Pusti sporo, pa normalnom brzinom.",
+  g:"Pročitaj pravilo, pa uradi kviz. Objašnjenje greške te najviše uči.",
+  d:"Vežbaj dijaloge: izaberi odgovor, pa ga izgovori naglas.",
+  p:"Pusti frazu, ponovi je u mikrofon i gledaj koje su reči crvene.",
+  sp:"Slušaj reč i kucaj je slovo po slovo. Pogledaj i pravila čitanja."
+};
+const WEAK_LIMIT = 10, DUE_LIMIT = 25, PASS = 0.8, PRON_PASS = 80;
+
+/* ================= ITEMS ================= */
+const ITEMS = {}, UNIT_BY = {};
+UNITS.forEach(u=>{
+  UNIT_BY[u.id]=u;
+  u.words.forEach((w,i)=>{ const k=u.id+":w"+i; ITEMS[k]={key:k,en:w[0],sr:w[1],kind:"w",unit:u.id}; });
+  u.phrases.forEach((p,i)=>{ const k=u.id+":p"+i; ITEMS[k]={key:k,en:p[0],sr:p[1],kind:"p",unit:u.id}; });
+  u.grammar.quiz.forEach((q,i)=>{ const k=u.id+":q"+i; ITEMS[k]={key:k,kind:"q",unit:u.id,q,en:q[0].replace("___",q[1][q[2]]),sr:u.grammar.title}; });
+});
+const ALL = Object.values(ITEMS);
+const B_LINES = UNITS.flatMap(u=>u.dialog.filter(l=>l[0]==="B").map(l=>({t:l[1],lvl:u.lvl,unit:u.id})));
+const lvlIdxOfUnit = id => LV.indexOf(UNIT_BY[id].lvl);
+
+/* ================= STATE ================= */
+const DEF = {v:2,xp:0,streak:0,lastDay:null,goal:50,rate:0.9,hist:{},done:{},best:{},it:{},pr:{},sk:{},log:[],lvl:0,placed:false,today:{},hard:false,updatedAt:0};
+const LS_KEY = "engleski-svaki-dan-v2", LS_OLD = "engleski-svaki-dan-v1";
+function fresh(){ return JSON.parse(JSON.stringify(DEF)); }
+function loadLocal(){
+  try{
+    const s=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(s&&s.v===2) return Object.assign(fresh(),s);
+    const o=JSON.parse(localStorage.getItem(LS_OLD)||"null");
+    if(o&&o.v===1){ const n=fresh(); Object.assign(n,{xp:o.xp||0,streak:o.streak||0,lastDay:o.lastDay,goal:o.goal||50,rate:o.rate||0.9,hist:o.hist||{},done:o.done||{},lvl:1,placed:true});
+      for(const [k,v] of Object.entries(o.srs||{})) n.it[k]={b:v.b,d:v.d,e:0,c:0}; return n; }
+  }catch(e){}
+  return fresh();
+}
+let state = loadLocal();
+function persistLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+let pushTimer=null;
+function save(){ state.updatedAt=Date.now(); persistLocal(); clearTimeout(pushTimer); pushTimer=setTimeout(remotePush,2000); }
+try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+
+/* --- claude.ai sync (only inside the claude viewer) --- */
+let claudeRef=null;
+(async()=>{ try{
+  if(!IN_CLAUDE) return;
+  const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]); if(!db||!user) return;
+  const id=await user.id(); if(!id) return;
+  const ref=db.collection("data/users/"+id).doc("progress2"); const snap=await ref.get(); const d=snap&&snap.data&&snap.data();
+  claudeRef=ref;
+  if(d&&d.json&&(d.updatedAt||0)>(state.updatedAt||0)){ const r=JSON.parse(d.json); if(r&&r.v===2){ state=Object.assign(fresh(),r); persistLocal(); if(!L) render(); } }
+  else if(state.updatedAt>0) remotePush();
+}catch(e){} })();
+
+/* --- Firebase: account, sync, leaderboard (GitHub version) --- */
+const FB={ready:false,user:null,db:null,auth:null,err:null,checked:false};
+function fbInit(){
+  if(IN_CLAUDE) return;
+  const cfg=window.FIREBASE_CONFIG;
+  if(!cfg||!cfg.apiKey||!window.firebase){ FB.checked=true; return; }
+  try{
+    firebase.initializeApp(cfg); FB.auth=firebase.auth(); FB.db=firebase.firestore(); FB.ready=true;
+    FB.auth.onAuthStateChanged(async u=>{ FB.user=u; FB.checked=true; if(u){ try{ await fbPull(); }catch(e){} } if(!L) render(); });
+  }catch(e){ FB.err=String(e&&e.message||e); FB.checked=true; }
+}
+async function fbPull(){
+  const ref=FB.db.collection("users").doc(FB.user.uid); const snap=await ref.get(); const d=snap.exists?snap.data():null;
+  if(d&&d.json&&(d.updatedAt||0)>(state.updatedAt||0)){ const r=JSON.parse(d.json); if(r&&r.v===2){ state=Object.assign(fresh(),r); persistLocal(); } }
+  else remotePush();
+}
+function remotePush(){
+  if(claudeRef) claudeRef.set({json:JSON.stringify(state),updatedAt:state.updatedAt}).catch(()=>{});
+  if(FB.ready&&FB.user){
+    FB.db.collection("users").doc(FB.user.uid).set({json:JSON.stringify(state),updatedAt:state.updatedAt}).catch(()=>{});
+    const base={name:(FB.user.displayName||"Učenik").slice(0,24),level:LV[curLevel()],streak:curStreak(),updatedAt:Date.now()};
+    FB.db.collection("lbAll").doc(FB.user.uid).set(Object.assign({xp:Math.round(state.xp)},base)).catch(()=>{});
+    FB.db.collection("lb").doc(weekId()).collection("users").doc(FB.user.uid).set(Object.assign({xp:Math.round(weekXP())},base)).catch(()=>{});
+  }
+}
+
+/* ================= DATES ================= */
+function dkey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function todayKey(){ return dkey(new Date()); }
+function yesterdayKey(){ const d=new Date(); d.setDate(d.getDate()-1); return dkey(d); }
+function dayNum(){ const d=new Date(); return Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/86400000); }
+function curStreak(){ return (state.lastDay===todayKey()||state.lastDay===yesterdayKey())?state.streak:0; }
+function todayXP(){ return state.hist[todayKey()]||0; }
+function weekId(){ const d=new Date(); const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const day=t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-day); const y=t.getUTCFullYear(); const w=Math.ceil(((t-Date.UTC(y,0,1))/86400000+1)/7); return y+"-W"+String(w).padStart(2,"0"); }
+function weekXP(){ const now=new Date(); const wd=(now.getDay()+6)%7; let s=0; for(let i=0;i<=wd;i++){ const d=new Date(now); d.setDate(now.getDate()-i); s+=state.hist[dkey(d)]||0; } return s; }
+function today(){ const t=todayKey(); if(!state.today||state.today.date!==t) state.today={date:t}; return state.today; }
+function addXP(n){
+  const t=todayKey();
+  if(state.lastDay!==t){ state.streak = state.lastDay===yesterdayKey()? state.streak+1 : 1; state.lastDay=t; }
+  state.xp+=n; state.hist[t]=(state.hist[t]||0)+n;
+  const keys=Object.keys(state.hist).sort(); while(keys.length>70) delete state.hist[keys.shift()];
+  save();
+}
+
+/* ================= LEARNING MODEL ================= */
+const INT=[0,1,2,4,7,15,30];
+function itS(k){ return state.it[k]||(state.it[k]={b:0,d:dayNum(),e:0,c:0}); }
+function markSeen(k){ if(!state.it[k]){ itS(k); save(); } }
+function grade(k,ok){ const s=itS(k); if(ok){ s.b=Math.min(s.b+1,6); s.d=dayNum()+INT[s.b]; s.c=(s.c||0)+1; } else { s.b=1; s.d=dayNum(); s.e=(s.e||0)+1; s.c=0; } save(); }
+function dueKeys(){ const n=dayNum(); return Object.keys(state.it).filter(k=>ITEMS[k]&&state.it[k].d<=n); }
+function weakKeys(){ return Object.keys(state.it).filter(k=>{ const s=state.it[k]; return ITEMS[k]&&s.e>0&&s.c<3; }).sort((a,b)=>state.it[b].e-state.it[a].e); }
+function rec(sk,ok){ if(!sk) return; state.sk[sk]=((state.sk[sk]||"")+(ok?"1":"0")).slice(-40); }
+function skillAcc(sk){ const s=state.sk[sk]||""; if(s.length<6) return null; return Math.round(s.split("").filter(c=>c==="1").length/s.length*100); }
+function prGrade(id,score){ const p=state.pr[id]||{b:0,n:0}; p.n++; p.l=score; p.b=Math.max(p.b,score); state.pr[id]=p;
+  const ks=Object.keys(state.pr); if(ks.length>400) delete state.pr[ks[0]]; save(); }
+function pronWeak(){ return Object.entries(state.pr).filter(([,p])=>p.b<PRON_PASS).map(([k])=>k); }
+function plural(n,a,b,c){ const m10=n%10,m100=n%100; if(m10===1&&m100!==11) return a; if(m10>=2&&m10<=4&&(m100<10||m100>=20)) return b; return c; }
+
+const unitsOf = l => UNITS.filter(u=>u.lvl===l);
+const lessonKey = (u,lk) => u.id+":"+lk;
+const unitDone = u => LESSONS.every(([lk])=>state.done[lessonKey(u,lk)]);
+function curLevel(){ return Math.min(state.lvl,4); }
+function unitOpen(u){ const li=LV.indexOf(u.lvl); if(li<state.lvl) return true; if(li>state.lvl) return false; const a=unitsOf(u.lvl), i=a.indexOf(u); return i===0||unitDone(a[i-1]); }
+function levelComplete(li){ return unitsOf(LV[li]).every(unitDone); }
+function nextLesson(){ if(state.lvl>4) return null; for(const u of unitsOf(LV[state.lvl])){ if(!unitOpen(u)) break; for(const [lk,ln] of LESSONS) if(!state.done[lessonKey(u,lk)]) return {u,lk,ln}; } return null; }
+function gate(){ const w=weakKeys().length; if(w>=WEAK_LIMIT) return {kind:"weak",n:w}; const d=dueKeys().length; if(d>=DUE_LIMIT) return {kind:"due",n:d}; return null; }
+
+/* ================= HELPERS ================= */
+function h(tag,attrs,...kids){ const e=document.createElement(tag); if(attrs) for(const [k,v] of Object.entries(attrs)){ if(v==null||v===false) continue; if(k==="class") e.className=v; else if(k==="html") e.innerHTML=v; else if(k.startsWith("on")) e.addEventListener(k.slice(2),v); else e.setAttribute(k,v===true?"":v); } for(const c of kids.flat()){ if(c==null||c===false) continue; e.append(c.nodeType?c:document.createTextNode(c)); } return e; }
+function svg(p,cls){ const s=document.createElementNS("http://www.w3.org/2000/svg","svg"); s.setAttribute("viewBox","0 0 24 24"); s.setAttribute("fill","none"); s.setAttribute("stroke","currentColor"); s.setAttribute("stroke-width","2"); s.setAttribute("stroke-linecap","round"); s.setAttribute("stroke-linejoin","round"); s.setAttribute("aria-hidden","true"); if(cls) s.setAttribute("class",cls); s.innerHTML=p; return s; }
+const IC={
+  spk:'<path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+  flame:'<path d="M12 2c1 3.5 5 5.5 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 .2 1.8 1 2.8 2 3 0-3.5-1-6 .5-9z" fill="currentColor" stroke="none"/>',
+  bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" stroke="none"/>',
+  learn:'<path d="M3 7l9-4 9 4-9 4z"/><path d="M7 9v5c0 1.5 2.5 3 5 3s5-1.5 5-3V9"/><path d="M21 7v6"/>',
+  review:'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/>',
+  chat:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/>',
+  stats:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  check:'<path d="M5 12.5 10 17 19 7"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" stroke="none"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>',
+  send:'<path d="M4 12 20 4l-6 16-3-7z"/>',
+  chev:'<path d="m9 6 6 6-6 6"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'
+};
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pick(a,n){ return shuffle(a).slice(0,n); }
+const CONTR={"i'm":"i am","you're":"you are","we're":"we are","they're":"they are","he's":"he is","she's":"she is","it's":"it is","that's":"that is","what's":"what is","where's":"where is","there's":"there is","here's":"here is","who's":"who is","don't":"do not","doesn't":"does not","didn't":"did not","isn't":"is not","aren't":"are not","wasn't":"was not","weren't":"were not","haven't":"have not","hasn't":"has not","hadn't":"had not","can't":"cannot","couldn't":"could not","won't":"will not","wouldn't":"would not","shouldn't":"should not","mustn't":"must not","i'll":"i will","you'll":"you will","we'll":"we will","they'll":"they will","he'll":"he will","she'll":"she will","it'll":"it will","i'd":"i would","you'd":"you would","we'd":"we would","they'd":"they would","let's":"let us","i've":"i have","you've":"you have","we've":"we have","they've":"they have"};
+function norm(s){ s=String(s).toLowerCase().replace(/[’‘`]/g,"'").replace(/-/g," ").replace(/[.,!?;:"()“”„…]/g," ").replace(/\s+/g," ").trim(); s=s.split(" ").map(w=>CONTR[w]||w).join(" "); return s.replace(/^(a|an|the|to) /,""); }
+function tokens(s){ return s.replace(/[.,!?:]/g,"").split(/\s+/).filter(Boolean); }
+let toastT=null;
+function toast(msg){ let t=document.getElementById("toast"); if(!t){ t=h("div",{id:"toast",class:"toast",role:"status"}); document.body.append(t); } t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},3200); }
+function sheet(title,text,buttons){ const ov=h("div",{class:"sheet",role:"dialog","aria-modal":"true","aria-label":title}); const close=()=>ov.remove();
+  ov.append(h("div",{class:"sheetcard"},h("h2",null,title),h("p",null,text),h("div",{class:"row"},buttons.map(([l,fn],i)=>h("button",{class:"btn"+(i?" ghost":""),type:"button",onclick:()=>{close(); fn&&fn();}},l)))));
+  ov.addEventListener("click",e=>{ if(e.target===ov) close(); }); document.body.append(ov); ov.querySelector("button").focus(); }
+
+/* ================= SPEECH OUT ================= */
+let voice=null; const hasTTS=("speechSynthesis" in window);
+function pickVoice(){ if(!hasTTS) return; const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang)); voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/(Samantha|Google|Natural|Aria|Jenny|Ava|Allison|Siri)/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs.find(v=>/en[-_]GB/i.test(v.lang))||vs[0]||null; }
+if(hasTTS){ pickVoice(); try{ speechSynthesis.onvoiceschanged=pickVoice; }catch(e){} }
+function say(t,slow,onend){ if(!hasTTS){ onend&&onend(); return; } try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang=voice?voice.lang:"en-US"; if(voice) u.voice=voice; u.rate=slow?0.6:state.rate; if(onend){ u.onend=onend; u.onerror=onend; } speechSynthesis.speak(u); }catch(e){ onend&&onend(); } }
+function spkBtn(text,label,opts={}){ return h("button",{class:"spk"+(opts.huge?" huge":""),type:"button","aria-label":"Pusti izgovor"+(opts.slow?" sporo":""),onclick:(e)=>{ e.stopPropagation(); say(text,opts.slow); }},svg(IC.spk),label||null); }
+function sayRow(text){ return h("div",{class:"say"},spkBtn(text,"Slušaj"),spkBtn(text,"Sporo",{slow:true})); }
+
+/* ================= SPEECH IN (microphone) ================= */
+const SRC = window.SpeechRecognition || window.webkitSpeechRecognition;
+let micState = SRC ? "unknown" : "unsupported";
+let curRec=null;
+function micUsable(){ return !!SRC && micState!=="denied"; }
+function stopRec(){ try{ curRec&&curRec.stop(); }catch(e){} }
+function recognize(onRes,onErr,onEnd){
+  if(!SRC){ onErr("unsupported"); onEnd&&onEnd(); return; }
+  try{
+    if(hasTTS) speechSynthesis.cancel();
+    const r=new SRC(); r.lang="en-US"; r.interimResults=false; r.maxAlternatives=5; r.continuous=false;
+    let done=false;
+    r.onresult=e=>{ done=true; const res=e.results[0], alts=[]; for(let i=0;i<res.length;i++) alts.push(res[i].transcript); micState="ok"; onRes(alts); };
+    r.onerror=e=>{ done=true; const c=e.error||"error"; if(c==="not-allowed"||c==="service-not-allowed") micState="denied"; onErr(c); };
+    r.onend=()=>{ curRec=null; if(!done) onErr("no-speech"); onEnd&&onEnd(); };
+    curRec=r; r.start();
+    setTimeout(()=>{ if(curRec===r) stopRec(); },9000);
+  }catch(e){ onErr("start-failed"); onEnd&&onEnd(); }
+}
+function micErr(c){
+  if(c==="no-speech") return "Nisam ništa čuo. Pritisni mikrofon i odmah počni da govoriš.";
+  if(c==="audio-capture") return "Mikrofon nije pronađen na ovom uređaju.";
+  if(c==="network") return "Prepoznavanje govora traži internet vezu.";
+  if(c==="aborted") return "Snimanje je prekinuto. Pokušaj ponovo.";
+  if(c==="not-allowed"||c==="service-not-allowed"){
+    if(IN_CLAUDE) return "Na claude.ai mikrofon nije dostupan. Proveru izgovora koristi u verziji aplikacije sa GitHub-a.";
+    if(IS_IOS) return "Mikrofon nije dozvoljen. Na iPhone-u: Podešavanja → Safari → Mikrofon → Dozvoli. Uključi i diktiranje: Podešavanja → Opšte → Tastatura → Diktiranje."+(IS_STANDALONE?" Ako ni tada ne radi iz ikonice, otvori aplikaciju u Safariju.":"");
+    return "Mikrofon nije dozvoljen. Dozvoli ga u podešavanjima pregledača.";
+  }
+  if(c==="unsupported") return IS_IOS?"Ovaj pregledač ne podržava prepoznavanje govora. Otvori aplikaciju u Safariju.":"Ovaj pregledač ne podržava prepoznavanje govora. Koristi Chrome ili Safari.";
+  return "Prepoznavanje nije uspelo. Pokušaj ponovo.";
+}
+const NUMW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+const FILLER=new Set(["um","uh","er","erm","hmm","ah"]);
+function speechWords(s){
+  s=String(s).toLowerCase().replace(/[’‘`]/g,"'").replace(/%/g," percent").replace(/&/g," and ").replace(/-/g," ").replace(/[.,!?;:"()“”„…]/g," ").replace(/\s+/g," ").trim();
+  let w=[]; s.split(" ").forEach(t=>{ if(!t||FILLER.has(t)) return; const e=CONTR[t]; if(e) w.push(...e.split(" ")); else w.push(t==="okay"?"ok":t==="mr"?"mister":t); });
+  w=w.map(t=>NUMW[t]!=null?String(NUMW[t]):t);
+  const out=[]; for(let i=0;i<w.length;i++){ const a=+w[i], b=+w[i+1]; if(a>=20&&a<=90&&a%10===0&&b>=1&&b<=9&&/^\d+$/.test(w[i+1]||"")){ out.push(String(a+b)); i++; } else out.push(w[i]); }
+  return out;
+}
+function lcsHit(a,b){ const n=a.length,m=b.length; const dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--) for(let j=m-1;j>=0;j--) dp[i][j]= a[i]===b[j]? dp[i+1][j+1]+1 : Math.max(dp[i+1][j],dp[i][j+1]);
+  const hit=new Array(n).fill(false); let i=0,j=0; while(i<n&&j<m){ if(a[i]===b[j]){ hit[i]=true; i++; j++; } else if(dp[i+1][j]>=dp[i][j+1]) i++; else j++; } return hit; }
+function scoreSpeech(target,alts){ const tw=speechWords(target); let best={score:-1,hit:tw.map(()=>false),heard:alts[0]||""};
+  alts.forEach(a=>{ const hw=speechWords(a); const hit=lcsHit(tw,hw); const m=hit.filter(Boolean).length; let sc=Math.round(m/Math.max(1,tw.length)*100); sc=Math.max(0,sc-Math.min(20,Math.max(0,hw.length-tw.length)*5)); if(sc>best.score) best={score:sc,hit,heard:a}; });
+  return best; }
+function tokenHits(text,hit){ let idx=0; return text.split(/\s+/).map(t=>{ const n=speechWords(t).length; const ok=n===0||hit.slice(idx,idx+n).every(Boolean); idx+=n; return ok; }); }
+
+/* ================= APP SHELL ================= */
+const app=document.getElementById("app");
+let tab="learn"; let L=null; const openLv=new Set();
+function setTab(t){ tab=t; L=null; render(); window.scrollTo(0,0); }
+function render(){
+  app.innerHTML="";
+  if(L){ renderLesson(); return; }
+  const top=h("header",{class:"top"},h("div",{class:"wrap"},
+    h("div",{class:"brand"},h("span",null,"Engleski"),h("em",{class:"brand-rest"}," svaki dan")),
+    h("span",{class:"chip lvchip",title:"Tvoj nivo"},state.lvl>4?"C1 ✓":LV[curLevel()]),
+    h("span",{class:"chip",title:"Dani zaredom"},svg(IC.flame,"flame"),String(curStreak())),
+    h("span",{class:"chip",title:"Ukupno XP"},svg(IC.bolt),String(state.xp))));
+  const main=h("main",{id:"view"}); const w=h("div",{class:"wrap"}); main.append(w);
+  ({learn:viewLearn,practice:viewPractice,talk:viewTalk,rank:viewRank,stats:viewStats})[tab](w,main);
+  const nPr=dueKeys().length+weakKeys().length;
+  const tabs=h("nav",{class:"tabs","aria-label":"Glavni meni"},h("div",{class:"wrap"},
+    tabBtn("learn","Učenje",IC.learn),tabBtn("practice","Vežba",IC.review,nPr),tabBtn("talk","Razgovor",IC.chat),tabBtn("rank","Rang",IC.trophy),tabBtn("stats","Napredak",IC.stats)));
+  app.append(top,main,tabs);
+  if(tab==="talk") afterChatRender();
+}
+function tabBtn(id,label,icon,badge){ return h("button",{class:"tab",type:"button","aria-current":tab===id?"page":null,onclick:()=>setTab(id)},svg(icon),label,badge?h("span",{class:"badge"},badge>99?"99+":String(badge)):null); }
+function ring(val,max){ const r=26,c=2*Math.PI*r,p=Math.min(1,val/max); const s=document.createElementNS("http://www.w3.org/2000/svg","svg"); s.setAttribute("viewBox","0 0 64 64"); s.setAttribute("class","ring");
+  s.innerHTML=`<circle class="bgc" cx="32" cy="32" r="${r}"/><circle class="fgc" cx="32" cy="32" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle">${Math.round(p*100)}%</text>`; return s; }
+
+/* ================= LEARN VIEW ================= */
+function goNext(){ const g=gate(); if(g){ showGate(g); return; } const n=nextLesson(); if(n){ startUnitLesson(n.u,n.lk); return; } if(state.lvl<=4&&levelComplete(state.lvl)){ startLevelTest(); return; } toast("Završio si sve nivoe. Bravo!"); }
+function showGate(g){
+  if(g.kind==="weak") sheet("Prvo sredi slabe tačke","Imaš "+g.n+" slabih tačaka. Nova lekcija se otključava kad ih bude manje od "+WEAK_LIMIT+". Stavka izlazi iz slabih tačaka kad je tačno odgovoriš 3 puta zaredom.",[["Vežbaj slabe tačke",startWeak],["Kasnije",null]]);
+  else sheet("Prvo ponavljanje","Čeka te "+g.n+" stavki za ponavljanje. Ponovi ih da ne zaboraviš ono što si već naučio, pa idi dalje.",[["Počni ponavljanje",()=>startReview()],["Kasnije",null]]);
+}
+function tryLesson(u,lk){ if(!unitOpen(u)){ toast("Ova jedinica se otključava kad završiš prethodnu."); return; } if(!state.done[lessonKey(u,lk)]){ const g=gate(); if(g){ showGate(g); return; } } startUnitLesson(u,lk); }
+
+function planSteps(){ const t=today(), due=dueKeys().length, weak=weakKeys().length, n=nextLesson();
+  return [
+    {n:"Ponavljanje",s:due?due+" "+plural(due,"stavka čeka","stavke čekaju","stavki čeka"):"Ništa ne čeka",done:!!t.rev||due===0,go:()=>startReview()},
+    {n:"Slabe tačke",s:weak?weak+" za sređivanje":"Nemaš ih",done:!!t.weak||weak===0,go:startWeak},
+    {n:"Nova lekcija",s:n?n.u.sr+" · "+n.ln:(state.lvl<=4?"Test nivoa "+LV[state.lvl]:"Sve završeno"),done:!!t.lesson,go:goNext},
+    {n:"Izgovor",s:micUsable()?"10 fraza u mikrofon":"10 fraza naglas",done:!!t.speak,go:()=>startSpeak(false)},
+    {n:"Razgovor",s:"Dijalog glasom ili AI",done:!!t.talk,go:()=>setTab("talk")}
+  ]; }
+function coach(){
+  const out=[], due=dueKeys().length, weak=weakKeys();
+  if(weak.length){ const k=weak[0], it=ITEMS[k]; out.push({t:weak.length+" "+plural(weak.length,"slaba tačka","slabe tačke","slabih tačaka"),x:"Najviše grešiš kod: „"+it.en+"“ ("+state.it[k].e+"×). Ponavljaćeš je dok je ne pogodiš 3 puta zaredom.",b:"Vežbaj slabe tačke",go:startWeak}); }
+  if(due) out.push({t:"Ponavljanje: "+due,x:"Ovo je trenutak kad počinješ da zaboravljaš. Kratko ponavljanje sada štedi mnogo učenja kasnije.",b:"Ponovi",go:()=>startReview()});
+  let ws=null; SKILLS.forEach(([id,n])=>{ const a=skillAcc(id); if(a!=null&&a<75&&(!ws||a<ws.a)) ws={id,n,a}; });
+  if(ws) out.push({t:"Najslabija veština: "+ws.n+" ("+ws.a+"%)",x:SKILL_TIP[ws.id],b:"Vežbaj: "+ws.n,go:()=>startSkill(ws.id)});
+  const gu={}; weak.filter(k=>ITEMS[k].kind==="q").forEach(k=>{ gu[ITEMS[k].unit]=(gu[ITEMS[k].unit]||0)+1; });
+  const gk=Object.keys(gu).sort((a,b)=>gu[b]-gu[a])[0];
+  if(gk){ const u=UNIT_BY[gk]; out.push({t:"Gramatika: "+u.grammar.title,x:"U ovoj temi imaš "+gu[gk]+" "+plural(gu[gk],"grešku","greške","grešaka")+". Pročitaj pravilo ponovo i uradi kviz.",b:"Ponovi pravilo",go:()=>startUnitLesson(u,"grammar")}); }
+  const pw=pronWeak(); if(pw.length>=3) out.push({t:"Izgovor: "+pw.length+" fraza ispod "+PRON_PASS+"%",x:"Ponavljaj ih u mikrofon dok sve reči ne budu zelene.",b:"Vežbaj izgovor",go:()=>startSpeak(true)});
+  if(!out.length) out.push({t:"Sve je pod kontrolom",x:Object.keys(state.it).length?"Nemaš slabih tačaka. Nastavi sa sledećom lekcijom.":"Kreni sa prvom lekcijom. Pratiću tvoje greške i reći ti na čemu da radiš.",b:"Sledeća lekcija",go:goNext});
+  return out.slice(0,3);
+}
+function viewLearn(w){
+  if(!state.placed){
+    w.append(h("section",{class:"next"},h("div",{class:"eyebrow"},"Dobrodošao"),h("h2",null,"Prvo da vidimo tvoj nivo"),
+      h("div",{style:"opacity:.9"},"Kratak test (oko 5 minuta, do 20 pitanja). Na osnovu njega otključavam prave lekcije za tebe."),
+      h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:startPlacement},"Uradi test nivoa"),
+        h("button",{class:"btn ghost onacc",type:"button",onclick:()=>{ state.placed=true; state.lvl=0; save(); render(); }},"Počinjem od nule (A1)"))));
+  }
+  const tx=todayXP(), goal=state.goal, steps=planSteps(), nd=steps.filter(s=>s.done).length, nxt=steps.find(s=>!s.done);
+  const pc=h("section",{class:"card plan"},
+    h("div",{class:"planhead"},ring(tx,goal),h("div",{style:"min-width:0;flex:1"},h("h2",null,"Današnji plan"),h("div",{class:"muted",style:"font-size:14px"},nd+" od "+steps.length+" urađeno · "+tx+" / "+goal+" XP"))),
+    h("ol",{class:"steps"},steps.map(s=>h("li",{class:s.done?"done":(s===nxt?"cur":"")},
+      h("button",{type:"button",onclick:s.go},h("span",{class:"dot"},s.done?svg(IC.check):null),h("span",{class:"st"},h("b",null,s.n),h("span",null,s.s)),s===nxt?h("span",{class:"go"},"Kreni"):svg(IC.chev,"chev"))))));
+  w.append(pc);
+  const cs=coach();
+  w.append(h("section",{class:"card coach"},h("div",{class:"eyebrow"},"Na čemu da radiš"),
+    cs.map((c,i)=>h("div",{class:"tipc"+(i===0?" first":"")},h("b",null,c.t),h("p",null,c.x),h("button",{class:"btn small"+(i?" ghost":""),type:"button",onclick:c.go},c.b)))));
+  if(!openLv.size) openLv.add(curLevel());
+  LV.forEach((l,li)=>{
+    const us=unitsOf(l), dn=us.filter(unitDone).length, isOpen=openLv.has(li);
+    const status= li<state.lvl?"Otključan":li===state.lvl?"Tvoj nivo":"Zaključan";
+    const sec=h("section",{class:"lvl"+(li>state.lvl?" locked":"")});
+    sec.append(h("button",{class:"lvlhead",type:"button","aria-expanded":isOpen?"true":"false",onclick:()=>{ isOpen?openLv.delete(li):openLv.add(li); render(); }},
+      h("span",{class:"lvbadge"},l),h("span",{class:"lvt"},h("b",null,LVN[l]),h("span",null,dn+"/"+us.length+" jedinica · "+status)),
+      h("span",{class:"lvbar"},h("i",{style:"width:"+Math.round(dn/us.length*100)+"%"})),svg(IC.chev,"chev"+(isOpen?" rot":""))));
+    if(isOpen){
+      if(li>state.lvl) sec.append(h("p",{class:"note",style:"margin:0 0 8px"},"Otključava se kad završiš nivo "+LV[li-1]+" i položiš test nivoa. Ako misliš da već znaš ovaj nivo, uradi test nivoa u Napretku."));
+      const list=h("div",{class:"units"});
+      us.forEach(u=>{ const open=unitOpen(u), cnt=LESSONS.filter(([lk])=>state.done[lessonKey(u,lk)]).length, num=UNITS.indexOf(u)+1;
+        list.append(h("article",{class:"unit"+(cnt===4?" complete":"")+(open?"":" ulock")},h("div",{class:"unum"},cnt===4?svg(IC.check):open?String(us.indexOf(u)+1):svg(IC.lock)),
+          h("div",{style:"min-width:0"},h("h3",null,u.sr),h("div",{class:"sr"},u.en),
+            h("div",{class:"lessons"},LESSONS.map(([lk,ln])=>{ const d=state.done[lessonKey(u,lk)], b=state.best[lessonKey(u,lk)];
+              return h("button",{class:"lpill"+(d?" done":""),type:"button",onclick:()=>tryLesson(u,lk)},d?svg(IC.check):null,ln,b!=null?h("small",null,b+"%"):null); })))));
+      });
+      sec.append(list);
+      if(li===state.lvl&&levelComplete(li)) sec.append(h("div",{class:"card levtest"},h("b",null,"Test nivoa "+l),h("p",{class:"note",style:"margin:0"},"15 pitanja. Treba ti 80% da otključaš nivo "+(LV[li+1]||"završen")+"."),h("button",{class:"btn sun",type:"button",onclick:startLevelTest},"Počni test")));
+      if(li<state.lvl&&li<4&&state.lvl>li) sec.append(h("p",{class:"note",style:"margin:8px 0 0"},"Ovaj nivo je otključan. Možeš da ponoviš bilo koju lekciju."));
+    }
+    w.append(sec);
+  });
+}
+
+/* ================= EXERCISES ================= */
+function distractors(item,field,n){
+  const same=ALL.filter(x=>x.kind===item.kind&&x.key!==item.key&&x[field]&&x[field]!==item[field]);
+  const unit=same.filter(x=>x.unit===item.unit), lvl=same.filter(x=>x.unit!==item.unit&&UNIT_BY[x.unit].lvl===UNIT_BY[item.unit].lvl);
+  const out=[]; const add=arr=>{ for(const x of shuffle(arr)){ if(out.length>=n) break; if(!out.includes(x[field])) out.push(x[field]); } };
+  add(unit); add(lvl); add(same); return out;
+}
+function exIntro(it){ return {type:"intro",it}; }
+function exMC(it,dir){ const f=dir==="en2sr"?"sr":"en"; return {type:"mc",it,dir,key:it.key,sk:it.kind==="w"?"w":"s",options:shuffle([it[f],...distractors(it,f,3)]),answer:it[f]}; }
+function exListen(it){ return {type:"listen",it,key:it.key,sk:"l",options:shuffle([it.en,...distractors(it,"en",3)]),answer:it.en}; }
+function exBuild(it){ const t=tokens(it.en); const low=t.map(s=>s.toLowerCase());
+  const extra=pick(ALL.filter(x=>x.kind==="p"&&x.key!==it.key&&x.unit===it.unit).flatMap(x=>tokens(x.en)).filter(x=>!low.includes(x.toLowerCase())),2);
+  return {type:"build",it,key:it.key,sk:"s",bank:shuffle(t.concat(extra)),answer:it.en}; }
+function exType(it){ return {type:"type",it,key:it.key,sk:"w",answer:it.en}; }
+function exQuizItem(it){ return {type:"quiz",q:it.q,key:it.key,sk:"g",options:shuffle(it.q[1]),answer:it.q[1][it.q[2]]}; }
+function exQuizRaw(q,lvl){ return {type:"quiz",q,lvl,options:shuffle(q[1]),answer:q[1][q[2]]}; }
+function exSpeak(text,sr,pid,ctx){ return {type:"speak",text,sr,pid:pid||text,ctx:ctx||null,sk:"p",hard:!!(ctx&&state.hard)}; }
+function exDialogRead(u){ return {type:"dread",u}; }
+function exDialogPick(u,i){ const line=u.dialog[i], prev=i>0?u.dialog[i-1]:null;
+  const pool=B_LINES.filter(x=>x.t!==line[1]&&x.unit!==u.id); const sameLv=pool.filter(x=>x.lvl===u.lvl);
+  const wrong=pick(sameLv.length>=2?sameLv:pool,2).map(x=>x.t);
+  return {type:"dpick",u,i,prev,line,sk:"d",options:shuffle([line[1],...wrong]),answer:line[1]}; }
+function exTip(u){ return {type:"tip",u}; }
+function exForItem(it,kinds){ if(it.kind==="q") return exQuizItem(it); const k=kinds[Math.floor(Math.random()*kinds.length)];
+  if(k==="mc1") return exMC(it,"en2sr"); if(k==="mc2") return exMC(it,"sr2en"); if(k==="listen") return exListen(it); if(k==="build") return exBuild(it); return exType(it); }
+const KINDS_W=["mc1","mc2","listen","type"], KINDS_P=["build","listen","mc2"];
+function exAny(it){ return exForItem(it,it.kind==="w"?KINDS_W:KINDS_P); }
+
+/* ================= SESSIONS ================= */
+function lessonDone(u,lk,ln,acc){
+  const pct=Math.round(acc*100), key=lessonKey(u,lk), passed=acc>=PASS||(L&&L.first<=5&&L.first-L.firstOk<=1);
+  state.best[key]=Math.max(state.best[key]||0,pct);
+  if(passed){ state.done[key]=true; today().lesson=true; }
+  save();
+  return passed? {passed:true,title:pct>=95?"Fantastično!":"Lekcija položena",text:"Tačnost "+pct+"%. "+(unitDone(u)?"Jedinica „"+u.sr+"“ je završena!":"Sledeća lekcija te čeka.")}
+    : {passed:false,title:"Još malo vežbe",text:"Tačnost "+pct+"%. Za prolaz ti treba "+Math.round(PASS*100)+"%. Pogledaj greške ispod i ponovi lekciju. Greške su sada u slabim tačkama.",again:()=>startUnitLesson(u,lk),againLabel:"Ponovi lekciju"};
+}
+function startUnitLesson(u,lk){
+  const ln=LESSONS.find(l=>l[0]===lk)[1]; let steps=[];
+  if(lk==="words"){
+    const ws=u.words.map((_,i)=>ITEMS[u.id+":w"+i]);
+    for(let g=0;g<ws.length;g+=5){ const grp=ws.slice(g,g+5); grp.forEach(it=>{ if(!state.it[it.key]) steps.push(exIntro(it)); }); shuffle(grp).forEach(it=>steps.push(exForItem(it,["mc1","mc2","listen"]))); }
+    pick(ws,3).forEach(it=>steps.push(exType(it)));
+    const pw=ws.filter(it=>PRON[it.en]); pick(pw,2).forEach(it=>steps.push(exReadQ(it.en,PRON[it.en])));
+    pick(ws.filter(spellable),2).forEach(it=>steps.push(exSpell(it,"dict")));
+  } else if(lk==="phrases"){
+    const ps=u.phrases.map((_,i)=>ITEMS[u.id+":p"+i]);
+    ps.forEach((it,i)=>{ if(!state.it[it.key]) steps.push(exIntro(it)); steps.push(exForItem(it,i%3===0?["listen"]:["build","mc2"])); });
+    pick(ps,3).forEach(it=>steps.push(exSpeak(it.en,it.sr,it.key)));
+  } else if(lk==="dialog"){
+    steps.push(exDialogRead(u)); u.dialog.forEach((l,i)=>{ if(l[0]==="B") steps.push(exDialogPick(u,i)); });
+    const bi=u.dialog.map((l,i)=>i).filter(i=>u.dialog[i][0]==="B");
+    pick(bi,2).forEach(i=>steps.push(exSpeak(u.dialog[i][1],u.dialog[i][2],u.id+":d"+i)));
+  } else {
+    steps.push(exTip(u)); u.grammar.quiz.forEach((q,i)=>steps.push(exQuizItem(ITEMS[u.id+":q"+i])));
+  }
+  startSession({title:u.sr+" · "+ln,steps,onDone:acc=>lessonDone(u,lk,ln,acc)});
+}
+function startReview(){
+  const keys=shuffle(dueKeys()).slice(0,20);
+  if(!keys.length){ toast("Ništa ne čeka ponavljanje. Bravo!"); today().rev=true; save(); render(); return; }
+  startSession({title:"Ponavljanje",steps:keys.map(k=>exAny(ITEMS[k])),onDone:acc=>{ today().rev=true; save(); return {title:"Ponavljanje završeno",text:"Tačnost "+Math.round(acc*100)+"%. Sledeće ponavljanje dolazi kad počneš da zaboravljaš."}; }});
+}
+function startWeak(){
+  const keys=weakKeys().slice(0,12);
+  if(!keys.length){ toast("Nemaš slabih tačaka."); today().weak=true; save(); render(); return; }
+  const a=keys.map(k=>exAny(ITEMS[k])), b=shuffle(keys).map(k=>exAny(ITEMS[k]));
+  startSession({title:"Slabe tačke",steps:a.concat(b),onDone:acc=>{ today().weak=true; save(); const left=weakKeys().length;
+    return {title:left?"Napredak!":"Slabe tačke sređene!",text:left?"Ostalo je još "+left+" "+plural(left,"slaba tačka","slabe tačke","slabih tačaka")+". Svaka izlazi kad je pogodiš 3 puta zaredom.":"Sve slabe tačke su sređene. Možeš dalje.",again:left?startWeak:null,againLabel:"Nastavi sa slabim tačkama"}; }});
+}
+function seenOrLevel(filter){ let ks=Object.keys(state.it).filter(k=>ITEMS[k]&&filter(ITEMS[k]));
+  if(ks.length<6){ const lvUnits=unitsOf(LV[curLevel()]).filter(unitOpen).map(u=>u.id); ks=ks.concat(ALL.filter(x=>lvUnits.includes(x.unit)&&filter(x)).map(x=>x.key)); }
+  return [...new Set(ks)]; }
+function startSkill(sk){
+  let steps=[];
+  if(sk==="w") steps=pick(seenOrLevel(x=>x.kind==="w"),12).map(k=>exForItem(ITEMS[k],KINDS_W));
+  else if(sk==="s") steps=pick(seenOrLevel(x=>x.kind==="p"),10).map(k=>exBuild(ITEMS[k]));
+  else if(sk==="l") steps=pick(seenOrLevel(x=>x.kind!=="q"),12).map(k=>exListen(ITEMS[k]));
+  else if(sk==="g") steps=pick(seenOrLevel(x=>x.kind==="q"),10).map(k=>exQuizItem(ITEMS[k]));
+  else if(sk==="d"){ const us=UNITS.filter(unitOpen); const all=[]; us.forEach(u=>u.dialog.forEach((l,i)=>{ if(l[0]==="B") all.push([u,i]); })); steps=pick(all,8).map(([u,i])=>exDialogPick(u,i)); }
+  else if(sk==="p"){ startSpeak(false); return; }
+  else if(sk==="sp"){ startDictation("dict"); return; }
+  if(!steps.length){ toast("Prvo uradi neku lekciju."); return; }
+  const n=SKILLS.find(s=>s[0]===sk)[1];
+  startSession({title:"Vežba: "+n,steps,onDone:acc=>({title:"Vežba završena",text:n+": "+Math.round(acc*100)+"% tačno."})});
+}
+function startSpeak(weakOnly){
+  let list=[]; const pw=new Set(pronWeak());
+  const phrases=seenOrLevel(x=>x.kind==="p").map(k=>ITEMS[k]);
+  const weakItems=phrases.filter(it=>pw.has(it.key)); list=weakItems.slice(0,10);
+  if(!weakOnly) list=list.concat(pick(phrases.filter(it=>!pw.has(it.key)),10-list.length));
+  if(!list.length){ toast(weakOnly?"Nemaš slabih fraza u izgovoru.":"Prvo uradi neku lekciju."); return; }
+  startSession({title:"Izgovor",steps:list.map(it=>exSpeak(it.en,it.sr,it.key)),onDone:()=>{ today().speak=true; save(); const n=pronWeak().length; return {title:"Izgovor vežban",text:n?"Ispod "+PRON_PASS+"% je još "+n+" "+plural(n,"fraza","fraze","fraza")+". Vraćaće ti se dok ih ne izgovoriš jasno.":"Sve fraze su iznad "+PRON_PASS+"%. Odlično!"}; }});
+}
+function startVoiceDialog(u){
+  const steps=[]; u.dialog.forEach((l,i)=>{ if(l[0]==="B") steps.push(exSpeak(l[1],l[2],u.id+":d"+i,i>0?u.dialog[i-1]:null)); });
+  startSession({title:"Razgovor glasom · "+u.sr,steps,onDone:()=>{ today().talk=true; save(); return {title:"Razgovor završen",text:"Probaj ponovo sa uključenim teškim režimom (bez engleskog teksta)."}; }});
+}
+function spellable(it){ return it.kind==="w"&&/^[a-z]+$/i.test(it.en)&&it.en.length>=3; }
+function letterDiff(your,correct){ const c=correct.split(""); const hit=lcsHit(c.map(x=>x.toLowerCase()),your.toLowerCase().split("")); return h("span",null,c.map((ch,i)=>hit[i]?ch:h("mark",null,ch))); }
+function exSpell(it,mode){ return {type:"spell",it,mode,key:it.key,sk:"sp",answer:it.en}; }
+function exReadQ(word,reading,rule){ const others=pick(Object.values(PRON).filter(r=>r!==reading&&!r.includes("/")),2); return {type:"readq",word,rule,sk:"sp",options:shuffle([reading,...others]),answer:reading}; }
+function startAlphabet(){ const steps=[{type:"abc"}]; pick(ALPHABET,10).forEach(([l])=>{ const opts=shuffle([l,...pick(ALPHABET.filter(a=>a[0]!==l),3).map(a=>a[0])]); steps.push({type:"abcq",sk:"sp",options:opts,answer:l}); });
+  startSession({title:"Abeceda",steps,onDone:acc=>({title:"Abeceda vežbana",text:"Prepoznao si "+Math.round(acc*100)+"% slova. Probaj sada „Slovo po slovo“."})}); }
+function startRules(){ const steps=[]; READ_RULES.forEach(r=>{ steps.push({type:"rule",r}); const ex=r[2].split("|").map(e=>e.split("=")); const [en,rd]=ex[Math.floor(Math.random()*ex.length)];
+    const wrong=pick(READ_RULES.flatMap(x=>x[2].split("|").map(e=>e.split("=")[1])).filter(x=>x!==rd),2); steps.push({type:"readq",word:en,rule:r[0]+": "+r[1],sk:"sp",options:shuffle([rd,...wrong]),answer:rd}); });
+  startSession({title:"Pravila čitanja",steps,onDone:acc=>({title:"Pravila pređena",text:"Tačnost "+Math.round(acc*100)+"%. Pravila ćeš videti i u lekcijama, kod svake nove reči piše kako se čita."})}); }
+function startDictation(mode){ let ks=seenOrLevel(spellable); if(ks.length<6) ks=ks.concat(ALL.filter(x=>spellable(x)&&UNIT_BY[x.unit].lvl===LV[curLevel()]).map(x=>x.key));
+  const list=pick([...new Set(ks)],mode==="letters"?10:12).map(k=>exSpell(ITEMS[k],mode)); if(!list.length){ toast("Prvo uradi neku lekciju."); return; }
+  startSession({title:mode==="letters"?"Slovo po slovo":"Diktat",steps:list,onDone:acc=>({title:"Spelovanje vežbano",text:"Tačno napisano: "+Math.round(acc*100)+"%. Pogrešne reči su u slabim tačkama."})}); }
+function startLevelTest(){
+  const l=LV[state.lvl]; if(!l) return; const ids=unitsOf(l).map(u=>u.id);
+  const qs=pick(ALL.filter(x=>x.kind==="q"&&ids.includes(x.unit)),8).map(it=>Object.assign(exQuizItem(it),{key:null}));
+  const others=pick(ALL.filter(x=>x.kind!=="q"&&ids.includes(x.unit)),7).map(it=>Object.assign(exAny(it),{key:null}));
+  startSession({title:"Test nivoa "+l,requeue:false,steps:shuffle(qs.concat(others)),onDone:acc=>{ const pct=Math.round(acc*100);
+    if(acc>=PASS){ state.lvl=Math.min(5,state.lvl+1); openLv.clear(); save(); return {passed:true,title:"Nivo "+l+" položen!",text:"Rezultat "+pct+"%. "+(state.lvl<=4?"Otključan je nivo "+LV[state.lvl]+" · "+LVN[LV[state.lvl]]+".":"Završio si sve nivoe!")}; }
+    return {passed:false,title:"Test nije položen",text:"Rezultat "+pct+"%. Treba ti 80%. Vežbaj slabe tačke i probaj ponovo.",again:startLevelTest,againLabel:"Ponovi test"}; }});
+}
+function startPlacement(){
+  const steps=[];
+  LV.forEach(l=>{ PLACEMENT[l].forEach(q=>steps.push(exQuizRaw(q,l)));
+    const ids=unitsOf(l).map(u=>u.id); const it=pick(ALL.filter(x=>x.kind==="p"&&ids.includes(x.unit)),1)[0];
+    steps.push(Object.assign(exListen(it),{key:null,sk:null,lvl:l})); });
+  const res={}; let stopAt=null;
+  startSession({title:"Test nivoa",requeue:false,log:false,steps,
+    onAnswer:(st,ok)=>{ res[st.lvl]=(res[st.lvl]||0)+(ok?1:0); },
+    stopEarly:()=>{ if(L.i%4!==0) return false; const l=LV[L.i/4-1]; if(l&&(res[l]||0)<3){ stopAt=LV.indexOf(l); return true; } return false; },
+    onDone:()=>{ const lv=stopAt!=null?stopAt:4; state.lvl=Math.max(state.placed?state.lvl:0,lv); state.placed=true; openLv.clear(); save();
+      return {title:"Tvoj nivo: "+LV[lv]+" · "+LVN[LV[lv]],text:(lv>0?"Nivoi do "+LV[lv]+" su otključani. ":"")+"Lekcije za nivo "+LV[lv]+" te čekaju, a ja pratim greške i govorim ti na čemu da radiš."}; }});
+}
+
+/* ================= LESSON RUNNER ================= */
+function startSession(o){ L=Object.assign({i:0,first:0,firstOk:0,xp:0,mist:[],finished:false,requeue:true,log:true},o); L.steps=o.steps.slice(); render(); window.scrollTo(0,0); }
+function quitLesson(){ if(hasTTS) speechSynthesis.cancel(); stopRec(); L=null; render(); window.scrollTo(0,0); }
+function renderLesson(){
+  const head=h("header",{class:"lhead"},h("div",{class:"wrap"},
+    h("button",{class:"x",type:"button","aria-label":"Zatvori",onclick:quitLesson},svg(IC.x)),
+    h("div",{class:"bar",role:"progressbar","aria-label":L.title,"aria-valuemin":"0","aria-valuemax":String(L.steps.length),"aria-valuenow":String(L.i)},h("i",{style:"width:"+(L.finished?100:Math.round(L.i/L.steps.length*100))+"%"}))));
+  const stage=h("main",{class:"stage"}); const w=h("div",{class:"wrap"}); stage.append(w); app.append(head,stage);
+  if(L.finished){ renderFinish(w); return; }
+  const st=L.steps[L.i];
+  const action=h("div",{class:"action"}); const aw=h("div",{class:"wrap"}); action.append(aw);
+  const btn=h("button",{class:"btn block",type:"button",id:"mainbtn"}); aw.append(btn); app.append(action);
+  const ctl={ready:false,passive:false,setReady(v){ this.ready=v; btn.disabled=!v; },
+    toPassive(label){ this.passive=true; btn.textContent=label||"Dalje"; btn.disabled=false; }};
+  L.ctl=ctl;
+  RENDER[st.type](st,w,ctl);
+  btn.textContent=ctl.label||(ctl.passive?"Dalje":"Proveri"); btn.disabled=!ctl.passive&&!ctl.ready;
+  btn.onclick=()=>{ if(ctl.passive){ advance(); return; } if(!ctl.ready) return; stopRec(); onChecked(st,ctl.check(),action,aw); };
+  ctl.submit=()=>btn.click();
+}
+function onChecked(st,res,action,aw){
+  const counts=st.type!=="speak";
+  if(!st.retry&&counts){ L.first++; if(res.ok) L.firstOk++; }
+  if(st.key) grade(st.key,res.ok);
+  if(st.sk&&!st.retry) rec(st.sk,res.ok);
+  if(L.onAnswer) L.onAnswer(st,res.ok);
+  if(res.ok){ L.xp+=10; addXP(10); }
+  else {
+    const m={q:res.q||"",a:res.your||"",c:res.show||st.answer||"",x:res.expl||"",t:Date.now()};
+    if(counts){ L.mist.push(m); if(L.log){ state.log.unshift(m); state.log=state.log.slice(0,40); save(); } }
+    if(L.requeue&&counts){ const copy=Object.assign({},st,{retry:true,options:st.options?shuffle(st.options):undefined,bank:st.bank?shuffle(st.bank):undefined}); L.steps.splice(Math.min(L.i+3,L.steps.length),0,copy); }
+  }
+  const en=res.en!==undefined?res.en:(st.answer||null);
+  if(en&&st.type!=="speak") say(en);
+  action.classList.add(res.ok?"ok":"no"); aw.innerHTML="";
+  const body=h("div",{style:"flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"},
+    h("h3",null,res.ok?(st.type==="speak"?"Odličan izgovor!":pickPraise()):(st.type==="speak"?"Izgovor još nije dovoljno jasan":"Nije tačno")));
+  if(!res.ok&&res.your&&st.type!=="speak") body.append(h("div",{class:"your"},"Ti: ",h("s",null,res.your)));
+  body.append(h("div",{class:"ans"},res.ok?null:(st.type==="speak"?"Cilj: ":"Tačno: "),res.diff||res.show||st.answer));
+  if(res.sub) body.append(h("small",{class:"muted"},res.sub));
+  if(st.it&&st.it.kind==="w"&&PRON[st.it.en]&&st.type!=="spell") body.append(h("small",{class:"muted"},"Čita se: ",h("b",null,PRON[st.it.en])));
+  if(!res.ok&&res.expl) body.append(h("div",{class:"why"},h("b",null,"Zašto: "),res.expl));
+  if(!res.ok&&L.requeue&&counts) body.append(h("small",{class:"muted"},"Ovo pitanje ti se vraća za koji korak."));
+  aw.append(h("div",{class:"fb"},body,en?spkBtn(en):null),h("button",{class:"btn block",type:"button",id:"mainbtn",onclick:advance},"Nastavi"));
+  aw.querySelector("#mainbtn").focus({preventScroll:true});
+}
+const PRAISE=["Tačno!","Odlično!","Bravo!","Super!","Tako je!"];
+function pickPraise(){ return PRAISE[Math.floor(Math.random()*PRAISE.length)]; }
+function advance(){ if(hasTTS) speechSynthesis.cancel(); stopRec(); L.i++; if((L.stopEarly&&L.stopEarly())||L.i>=L.steps.length){ finishSession(); return; } render(); window.scrollTo(0,0); }
+function finishSession(){ L.finished=true; const acc=L.first?L.firstOk/L.first:1; L.acc=acc; L.result=(L.onDone&&L.onDone(acc))||{title:"Završeno"}; if(L.result.passed!==false){ L.xp+=10; addXP(10); } save(); render(); window.scrollTo(0,0); }
+function renderFinish(w){
+  const r=L.result, acc=Math.round(L.acc*100);
+  w.append(h("div",{class:"done"},h("div",{class:"tagnew"+(r.passed===false?" warn":"")},r.passed===false?"NIJE POLOŽENO":"ZAVRŠENO"),h("h1",null,r.title),h("p",{class:"muted",style:"margin:0;max-width:44ch"},r.text),
+    h("div",{class:"stats3"},h("div",{class:"stat"},h("b",null,"+"+L.xp),h("span",null,"XP")),h("div",{class:"stat"},h("b",null,acc+"%"),h("span",null,"tačnost")),h("div",{class:"stat"},h("b",null,String(curStreak())),h("span",null,"dana zaredom")))));
+  if(L.mist.length){
+    w.append(h("section",{class:"card"},h("div",{class:"eyebrow",style:"margin-bottom:8px"},"Tvoje greške u ovoj vežbi"),
+      h("div",{class:"mlist"},L.mist.slice(0,12).map(m=>h("div",{class:"mrow"},m.q?h("span",{class:"mq"},m.q):null,m.a?h("span",{class:"your"},"Ti: ",h("s",null,m.a)):null,h("span",{class:"mc"},"Tačno: ",h("b",null,m.c)),m.x?h("span",{class:"why"},m.x):null)))));
+  }
+  const row=h("div",{class:"row",style:"flex-direction:column;align-items:stretch"});
+  if(r.again) row.append(h("button",{class:"btn block",type:"button",onclick:r.again},r.againLabel||"Ponovi"));
+  row.append(h("button",{class:"btn block"+(r.again?" ghost":""),type:"button",onclick:quitLesson},"Nazad"));
+  w.append(row);
+}
+function optionList(options,ctl){ let sel=null; const box=h("div",{class:"opts"});
+  options.forEach(o=>{ const b=h("button",{class:"opt",type:"button","aria-pressed":"false",onclick:()=>{ box.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); sel=o; ctl.setReady(true); }},o); box.append(b); });
+  ctl.value=()=>sel; return box; }
+function markOpts(box,correct,chosen){ box.querySelectorAll(".opt").forEach(b=>{ b.disabled=true; if(b.textContent===correct) b.classList.add("right"); else if(b.textContent===chosen) b.classList.add("wrong"); }); }
+function diffNode(your,correct){ const ct=correct.split(/\s+/); const yw=norm(your).split(" "); const cw=ct.map(t=>norm(t)||t.toLowerCase());
+  const hit=lcsHit(cw,yw); return h("span",null,ct.map((t,i)=>[hit[i]?t:h("mark",null,t)," "]).flat()); }
+function bubble(en,sr,who,me){ return h("div",{class:"bub"+(me?" me":"")},h("span",{class:"who"},who),h("span",{class:"en"},en),sr?h("span",{class:"srt"},sr):null,h("button",{class:"mini",type:"button",onclick:()=>say(en)},svg(IC.spk),"Slušaj")); }
+
+const RENDER={
+  intro(st,w,ctl){ markSeen(st.it.key); ctl.passive=true;
+    const isP=st.it.kind==="p", pr=PRON[st.it.en];
+    w.append(h("div",{class:"tagnew"},isP?"NOVA FRAZA":"NOVA REČ"),h("div",{class:"flash"},
+      isP?h("div",{class:"big wline"},st.it.en.split(" ").map(t=>h("button",{class:"wbtn",type:"button",onclick:()=>say(t.replace(/[.,!?]/g,""),true)},t))):h("div",{class:"big"},st.it.en),
+      pr?h("div",{class:"pron"},"Čita se: ",h("b",null,pr)):null,h("div",{class:"tr"},st.it.sr),sayRow(st.it.en)),
+      h("p",{class:"muted",style:"margin:0"},isP?"Dodirni bilo koju reč da je čuješ sporo. Ponovi celu rečenicu naglas.":"Poslušaj i ponovi naglas. Velika slova pokazuju naglašeni slog."));
+    setTimeout(()=>say(st.it.en),250); },
+  mc(st,w,ctl){ const q=st.dir==="en2sr"?st.it.en:st.it.sr;
+    w.append(h("div",{class:"prompt"},st.dir==="en2sr"?"Šta znači:":"Kako se kaže na engleskom:"),h("div",{class:"say"},h("div",{class:"big",style:"flex:1;min-width:0"},q),st.dir==="en2sr"?spkBtn(st.it.en):null),st.dir==="en2sr"&&PRON[st.it.en]?h("div",{class:"pron"},"Čita se: ",h("b",null,PRON[st.it.en])):"");
+    const box=optionList(st.options,ctl); w.append(box); if(st.dir==="en2sr") setTimeout(()=>say(st.it.en),250);
+    ctl.check=()=>{ const v=ctl.value(); markOpts(box,st.answer,v); return {ok:v===st.answer,show:st.answer,your:v,q,sub:st.dir==="en2sr"?st.it.en:st.it.sr,en:st.it.en}; }; },
+  listen(st,w,ctl){ w.append(h("div",{class:"prompt"},"Šta čuješ?"),h("div",{class:"say"},spkBtn(st.it.en,null,{huge:true}),spkBtn(st.it.en,"Sporo",{slow:true})));
+    const box=optionList(st.options,ctl); w.append(box); setTimeout(()=>say(st.it.en),300);
+    ctl.check=()=>{ const v=ctl.value(); markOpts(box,st.answer,v); return {ok:v===st.answer,show:st.answer,your:v,q:"Slušanje",sub:st.it.sr}; }; },
+  build(st,w,ctl){ const ans=h("div",{class:"answer","aria-label":"Tvoj odgovor"}); const bank=h("div",{class:"bank"}); const chosen=[];
+    w.append(h("div",{class:"prompt"},"Složi rečenicu na engleskom:"),h("div",{class:"big",style:"font-size:24px"},st.it.sr),ans,bank);
+    st.bank.forEach(t=>{ const b=h("button",{class:"tok",type:"button"},t);
+      b.onclick=()=>{ if(b.classList.contains("used")) return; b.classList.add("used"); const c=h("button",{class:"tok",type:"button"},t); chosen.push({t,c,b}); ans.append(c); ctl.setReady(true);
+        c.onclick=()=>{ const ix=chosen.findIndex(x=>x.c===c); if(ix>=0) chosen.splice(ix,1); c.remove(); b.classList.remove("used"); ctl.setReady(chosen.length>0); }; };
+      bank.append(b); });
+    ctl.check=()=>{ const v=chosen.map(x=>x.t).join(" "); w.querySelectorAll(".tok").forEach(b=>b.disabled=true); const ok=norm(v)===norm(st.answer);
+      return {ok,show:st.answer,your:v,q:st.it.sr,diff:ok?null:diffNode(v,st.answer),expl:ok?"":"Žutim su označene reči koje fale ili su na pogrešnom mestu."}; }; },
+  type(st,w,ctl){ const inp=h("input",{class:"field",id:"typefield",type:"text",autocomplete:"off",autocapitalize:"off",autocorrect:"off",spellcheck:"false",placeholder:"Napiši na engleskom…","aria-label":"Odgovor na engleskom"});
+    w.append(h("div",{class:"prompt"},"Napiši na engleskom:"),h("div",{class:"big",style:"font-size:28px"},st.it.sr),inp);
+    inp.addEventListener("input",()=>ctl.setReady(inp.value.trim().length>0));
+    inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); ctl.submit(); } });
+    setTimeout(()=>inp.focus({preventScroll:true}),200);
+    ctl.check=()=>{ inp.disabled=true; const raw=inp.value.trim(), v=norm(raw); const alts=st.answer.split("/").map(norm); const ok=alts.includes(v);
+      return {ok,show:st.answer,your:raw,q:st.it.sr,diff:ok?null:diffNode(raw,st.answer),sub:ok&&raw.toLowerCase()!==st.answer.toLowerCase()?"Ti si napisao: "+raw:st.it.sr}; }; },
+  speak(st,w,ctl){
+    w.append(h("div",{class:"tagnew"},st.ctx?"TVOJ RED":"IZGOVOR"));
+    if(st.ctx){ w.append(h("div",{class:"bubbles"},bubble(st.ctx[1],st.hard?null:st.ctx[2],"Osoba A"))); setTimeout(()=>say(st.ctx[1]),250); w.append(h("div",{class:"prompt"},"Odgovori naglas:")); }
+    else { w.append(h("div",{class:"prompt"},"Izgovori ovo naglas:")); setTimeout(()=>say(st.text),250); }
+    const spans=st.text.split(/\s+/).map(t=>h("span",{class:"wd"},t));
+    const line=h("div",{class:"big speakline"},spans.map(s=>[s," "]).flat());
+    const card=h("div",{class:"flash"});
+    if(st.hard){ const rv=h("button",{class:"btn small ghost",type:"button",onclick:()=>{ line.hidden=false; rv.remove(); }},"Prikaži engleski"); line.hidden=true; card.append(h("div",{class:"tr",style:"font-size:20px;color:var(--ink)"},st.sr),line,rv,sayRow(st.text)); }
+    else card.append(line,h("div",{class:"tr"},st.sr),sayRow(st.text));
+    w.append(card);
+    const self=(msg)=>{ w.append(h("p",{class:"note",style:"margin:0"},msg||"Poslušaj, pa ponovi naglas 2–3 puta, istim ritmom.")); ctl.toPassive("Ponovio sam naglas"); };
+    if(!micUsable()){ ctl.passive=true; ctl.label="Ponovio sam naglas"; w.append(h("p",{class:"note",style:"margin:0"},micState==="denied"?micErr("not-allowed"):(SRC?"":micErr("unsupported")))); return; }
+    const res=h("div",{class:"micres",hidden:true,"aria-live":"polite"});
+    const micBtn=h("button",{class:"mic",type:"button","aria-label":"Snimi izgovor"},svg(IC.mic));
+    const lbl=h("div",{class:"miclbl"},"Pritisni mikrofon i izgovori rečenicu");
+    const skip=h("button",{class:"linkbtn",type:"button",onclick:()=>{ stopRec(); advance(); }},"Ne mogu sada da govorim, preskoči");
+    w.append(h("div",{class:"micwrap"},micBtn,lbl),res,skip);
+    let best=0,heard="",tries=0,listening=false; ctl.label="Dalje";
+    micBtn.onclick=()=>{
+      if(listening){ stopRec(); return; }
+      listening=true; micBtn.classList.add("on"); lbl.textContent="Slušam… govori sada (pritisni ponovo za kraj)";
+      recognize(alts=>{
+        const r=scoreSpeech(st.text,alts); tries++; if(r.score>=best){ best=r.score; heard=r.heard; }
+        const hits=tokenHits(st.text,r.hit); spans.forEach((s,i)=>{ s.className="wd "+(hits[i]?"ok":"bad"); });
+        line.hidden=false;
+        res.hidden=false; res.innerHTML="";
+        res.append(h("div",{class:"score "+(r.score>=PRON_PASS?"good":r.score>=50?"mid":"low")},r.score+"%"),
+          h("div",{style:"min-width:0"},h("b",null,r.score>=PRON_PASS?"Odlično, razumljivo je!":r.score>=50?"Skoro. Crvene reči nisu prepoznate.":"Nije prepoznato. Poslušaj sporo, pa probaj ponovo."),
+            h("div",{class:"note"},"Čuo sam: „"+r.heard+"“"),tries>1?h("div",{class:"note"},"Pokušaj "+tries+" · najbolji "+best+"%"):null));
+        prGrade(st.pid,r.score); ctl.setReady(true);
+      },err=>{ lbl.textContent=micErr(err); if(micState==="denied"){ micBtn.disabled=true; skip.remove(); self(" "); } },
+      ()=>{ listening=false; micBtn.classList.remove("on"); if(/^Slušam/.test(lbl.textContent)) lbl.textContent=tries?"Pritisni mikrofon za novi pokušaj":"Pritisni mikrofon i izgovori rečenicu"; });
+    };
+    ctl.check=()=>({ok:best>=PRON_PASS,show:st.text,en:st.text,your:heard,q:"Izgovor",sub:tries?"Najbolji rezultat: "+best+"% (cilj "+PRON_PASS+"%)":"Nisi snimio izgovor."});
+  },
+  dread(st,w,ctl){ ctl.passive=true; ctl.label="Spreman sam"; const lines=st.u.dialog;
+    const playAll=h("button",{class:"btn ghost small",type:"button"},"Pusti ceo dijalog");
+    playAll.onclick=()=>{ let i=0; const next=()=>{ if(i>=lines.length||!L) return; const l=lines[i++]; say(l[1],false,()=>setTimeout(next,350)); }; next(); };
+    w.append(h("div",{class:"prompt"},"Pročitaj i poslušaj razgovor"),h("p",{class:"muted",style:"margin:0"},"Ti si osoba B. U sledećim koracima biraš šta B kaže, pa to izgovaraš."),playAll,
+      h("div",{class:"bubbles"},lines.map(l=>bubble(l[1],l[2],l[0]==="B"?"Ti (B)":"Osoba A",l[0]==="B")))); },
+  dpick(st,w,ctl){ w.append(h("div",{class:"prompt"},"Šta ćeš odgovoriti?"));
+    if(st.prev){ w.append(h("div",{class:"bubbles"},bubble(st.prev[1],null,"Osoba A"))); setTimeout(()=>say(st.prev[1]),250); }
+    else w.append(h("p",{class:"muted",style:"margin:0"},"Ti počinješ razgovor. Želiš da kažeš: „"+st.line[2]+"“"));
+    const box=optionList(st.options,ctl); w.append(box);
+    ctl.check=()=>{ const v=ctl.value(); markOpts(box,st.answer,v); return {ok:v===st.answer,show:st.answer,your:v,q:st.prev?st.prev[1]:st.line[2],sub:st.line[2]}; }; },
+  tip(st,w,ctl){ ctl.passive=true; ctl.label="Razumem, idemo na vežbu"; const g=st.u.grammar;
+    w.append(h("div",{class:"tagnew"},"GRAMATIKA"),h("div",{class:"tip"},h("h2",{style:"font-size:22px"},g.title),h("div",{html:g.html,style:"display:flex;flex-direction:column;gap:10px"})),
+      h("div",{class:"eyebrow"},"Primeri (dodirni da čuješ)"),
+      h("div",{class:"exl"},g.ex.map(e=>h("button",{type:"button",onclick:()=>say(e[0])},h("span",null,h("span",{class:"e"},e[0]),h("br"),h("span",{class:"s"},e[1])),svg(IC.spk))))); },
+  spell(st,w,ctl){ const word=st.it.en; const play=()=>st.mode==="letters"?say(word.toUpperCase().split("").join(". "),true):say(word);
+    w.append(h("div",{class:"tagnew"},"SPELOVANJE"),h("div",{class:"prompt"},st.mode==="letters"?"Slušaj slova i napiši reč:":"Slušaj i napiši reč, slovo po slovo:"),
+      h("div",{class:"say"},h("button",{class:"spk huge",type:"button","aria-label":"Pusti ponovo",onclick:play},svg(IC.spk)),st.mode==="letters"?null:spkBtn(word,"Sporo",{slow:true})),
+      h("p",{class:"note",style:"margin:0"},"Značenje: "+st.it.sr));
+    const inp=h("input",{class:"field",id:"typefield",type:"text",autocomplete:"off",autocapitalize:"off",autocorrect:"off",spellcheck:"false",placeholder:"Napiši reč…","aria-label":"Reč na engleskom"});
+    w.append(inp); inp.addEventListener("input",()=>ctl.setReady(inp.value.trim().length>0)); inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); ctl.submit(); } });
+    setTimeout(()=>{ play(); inp.focus({preventScroll:true}); },300);
+    ctl.check=()=>{ inp.disabled=true; const raw=inp.value.trim(); const ok=raw.toLowerCase()===word.toLowerCase();
+      return {ok,show:word,your:raw,q:"Spelovanje: "+st.it.sr,diff:ok?null:letterDiff(raw,word),sub:"Slova: "+word.toUpperCase().split("").join("-")+(PRON[word]?" · čita se: "+PRON[word]:""),en:word,expl:ok?"":"Žutim su označena slova koja fale ili su pogrešna."}; }; },
+  readq(st,w,ctl){ w.append(h("div",{class:"tagnew"},"KAKO SE ČITA"),h("div",{class:"prompt"},"Kako se čita ova reč?"),h("div",{class:"big"},st.word));
+    const box=optionList(st.options,ctl); w.append(box);
+    ctl.check=()=>{ const v=ctl.value(); markOpts(box,st.answer,v); return {ok:v===st.answer,show:st.answer,your:v,q:"Kako se čita: "+st.word,en:st.word,expl:st.rule||"Velika slova su naglašeni slog."}; }; },
+  abc(st,w,ctl){ ctl.passive=true; ctl.label="Idemo na vežbu";
+    w.append(h("div",{class:"tagnew"},"ABECEDA"),h("div",{class:"prompt"},"Engleska slova i kako se izgovaraju"),h("p",{class:"muted",style:"margin:0"},"Dodirni slovo da ga čuješ. Ovako se spelovanje radi naglas, na primer kad diktiraš ime ili e-mail."),
+      h("div",{class:"abc"},ALPHABET.map(([l,r])=>h("button",{type:"button",onclick:()=>say(l,true)},h("b",null,l),h("span",null,r))))); },
+  abcq(st,w,ctl){ w.append(h("div",{class:"prompt"},"Koje slovo čuješ?"),h("div",{class:"say"},h("button",{class:"spk huge",type:"button","aria-label":"Pusti slovo",onclick:()=>say(st.answer,true)},svg(IC.spk))));
+    const box=optionList(st.options,ctl); w.append(box); setTimeout(()=>say(st.answer,true),300);
+    ctl.check=()=>{ const v=ctl.value(); markOpts(box,st.answer,v); const r=ALPHABET.find(a=>a[0]===st.answer); return {ok:v===st.answer,show:st.answer,your:v,q:"Slovo",en:null,sub:"Čita se: "+r[1]}; }; },
+  rule(st,w,ctl){ ctl.passive=true; ctl.label="Dalje"; const [t,x,ex]=st.r;
+    w.append(h("div",{class:"tagnew"},"PRAVILO ČITANJA"),h("div",{class:"tip"},h("h2",{style:"font-size:22px"},t),h("p",null,x)),h("div",{class:"eyebrow"},"Primeri (dodirni da čuješ)"),
+      h("div",{class:"exl"},ex.split("|").map(e=>{ const [en,r]=e.split("="); return h("button",{type:"button",onclick:()=>say(en,true)},h("span",null,h("span",{class:"e"},en),h("br"),h("span",{class:"s"},"čita se: "+r)),svg(IC.spk)); }))); },
+  quiz(st,w,ctl){ const parts=st.q[0].split("___");
+    w.append(h("div",{class:"prompt"},st.lvl?"Pitanje za nivo "+st.lvl+":":"Dopuni rečenicu:"),h("div",{class:"blank"},parts[0],h("u",null," "),parts[1]||""));
+    const box=optionList(st.options,ctl); w.append(box); const full=st.q[0].replace("___",st.answer).replace(/\s*\([^)]*\)/g,""); const eng=!/[čćšžđ„“=]/i.test(full);
+    ctl.check=()=>{ const v=ctl.value(); markOpts(box,st.answer,v); return {ok:v===st.answer,show:st.answer,your:v,q:st.q[0],sub:eng?full:null,en:eng?full:null,expl:st.q[3]||""}; }; }
+};
+
+/* ================= PRACTICE VIEW ================= */
+function viewPractice(w){
+  const due=dueKeys().length, weak=weakKeys(), seen=Object.keys(state.it).length;
+  w.append(h("h1",{class:"pageh"},"Vežba"));
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Slabe tačke"),
+    weak.length?[h("h2",null,weak.length+" "+plural(weak.length,"stavka","stavke","stavki")+" za sređivanje"),h("p",{class:"note",style:"margin:0"},"Stavka izlazi odavde kad je tačno odgovoriš 3 puta zaredom."+(weak.length>=WEAK_LIMIT?" Dok ih je "+WEAK_LIMIT+" ili više, nove lekcije su zaključane.":"")),
+      h("div",{class:"exl"},weak.slice(0,6).map(k=>{ const it=ITEMS[k], s=state.it[k]; return h("button",{type:"button",onclick:()=>say(it.en)},h("span",null,h("span",{class:"e"},it.en),h("br"),h("span",{class:"s"},it.sr+" · "+s.e+"× greška · "+s.c+"/3")),svg(IC.spk)); })),
+      h("button",{class:"btn",type:"button",onclick:startWeak},"Vežbaj slabe tačke")]
+     :[h("h2",null,"Nemaš slabih tačaka"),h("p",{class:"note",style:"margin:0"},"Svaka greška iz lekcija završava ovde dok je ne savladaš.")]));
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Ponavljanje"),
+    h("h2",null,due?due+" "+plural(due,"stavka čeka","stavke čekaju","stavki čeka"):"Sve je ponovljeno"),
+    h("p",{class:"note",style:"margin:0"},"Reči se vraćaju posle 1, 2, 4, 7, 15 i 30 dana, baš kad počneš da ih zaboravljaš."),
+    due?h("button",{class:"btn sun",type:"button",onclick:()=>startReview()},"Počni ponavljanje ("+Math.min(due,20)+")"):null));
+  w.append(h("div",{class:"eyebrow",style:"margin-top:4px"},"Vežbaj veštinu"));
+  w.append(h("div",{class:"skills"},SKILLS.map(([id,n])=>{ const a=skillAcc(id);
+    return h("button",{class:"skill",type:"button",onclick:()=>startSkill(id)},h("b",null,n),h("span",{class:"pct"},a==null?"—":a+"%"),h("span",{class:"sbar"},h("i",{class:a!=null&&a<75?"low":"",style:"width:"+(a||0)+"%"}))); })));
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Čitanje i spelovanje"),
+    h("p",{style:"margin:0"},"Nauči kako se engleska slova čitaju i kako se reči pišu. Kod svake nove reči piše i kako se čita, našim slovima."),
+    h("div",{class:"grid2"},[["Abeceda",startAlphabet],["Pravila čitanja",startRules],["Diktat",()=>startDictation("dict")],["Slovo po slovo",()=>startDictation("letters")]].map(([l,fn])=>h("button",{class:"btn ghost",type:"button",onclick:fn},l)))));
+  const pw=pronWeak().length;
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Izgovor"),
+    h("p",{style:"margin:0"},micUsable()?"Izgovaraš fraze u mikrofon, a aplikacija pokazuje koje reči nisu jasne. Cilj je "+PRON_PASS+"%.":micErr(micState==="denied"?"not-allowed":"unsupported")),
+    h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:()=>startSpeak(false)},"Vežbaj izgovor (10)"),pw?h("button",{class:"btn ghost",type:"button",onclick:()=>startSpeak(true)},"Samo slabe ("+pw+")"):null)));
+  if(!seen) w.append(h("p",{class:"note"},"Još nema ničeg za vežbu. Uradi prvu lekciju u kartici Učenje."));
+}
+
+/* ================= TALK VIEW ================= */
+let chat={scen:null,turns:[],items:[],busy:false,err:null};
+let samplePromise=null, sampleAvail=IN_CLAUDE?undefined:false;
+function getSample(){ if(!samplePromise) samplePromise=IN_CLAUDE?claude.use("sample").catch(()=>null):Promise.resolve(null); return samplePromise; }
+if(IN_CLAUDE) getSample().then(s=>{ sampleAvail=!!s; if(tab==="talk"&&!L) render(); });
+const SCENARIOS=[
+  {id:"cafe",sr:"Kafić",prompt:"You are a friendly waiter in a café in London. The learner is a customer. Greet them and take their order."},
+  {id:"job",sr:"Razgovor za posao",prompt:"You are a friendly HR manager interviewing the learner for a job. First ask what job they want. Ask one interview question at a time."},
+  {id:"work",sr:"Novi kolega",prompt:"You are a new colleague at work. Make small talk about introductions, tasks, lunch and plans."},
+  {id:"hotel",sr:"Hotel",prompt:"You are a hotel receptionist. The learner is a guest checking in who may have a problem with the room."},
+  {id:"doctor",sr:"Kod lekara",prompt:"You are a doctor. The learner is a patient. Ask about symptoms and give simple advice."},
+  {id:"free",sr:"Slobodna tema",prompt:"You are a friendly English-speaking friend. Chat about everyday life, hobbies, family, work and plans."}
+];
+function rulesFor(s){ const lv=LV[curLevel()];
+  return "You are an English conversation partner for a Serbian speaker whose English level is "+lv+". They want to communicate confidently in everyday life and at work.\nScenario: "+s.prompt+"\nStay in your role. Use natural English that fits level "+lv+", replies of 1-3 sentences, and usually end with a question. The learner may write in English, Serbian, or mixed.\nRespond ONLY with a JSON object with these keys:\n\"reply\": your next line in English;\n\"reply_sr\": Serbian translation of your reply (Latin script);\n\"fix\": if the learner's last message had grammar or word mistakes, or was in Serbian, the corrected natural English version; otherwise an empty string;\n\"tip\": if there was a mistake, a short explanation in Serbian (Latin script) of the most important mistake; otherwise an empty string;\n\"ideas\": an array of 2 short example answers in English the learner could say next."; }
+async function chatCall(userText){
+  const sample=await getSample(); if(!sample){ chat.err="AI razgovor nije dostupan u ovom prikazu."; render(); return; }
+  chat.busy=true; chat.err=null; render();
+  const s=SCENARIOS.find(x=>x.id===chat.scen);
+  const turns=[{role:"user",content:rulesFor(s)+"\n\nStart the conversation now with your first line. \"fix\" and \"tip\" must be empty."}].concat(chat.turns);
+  if(userText!=null) turns.push({role:"user",content:"Learner: "+userText});
+  try{
+    const data=await sample.json(turns,{modelTier:"quick",cache:false});
+    const reply=String(data&&data.reply||"").trim(); if(!reply) throw {code:"empty"};
+    if(userText!=null){ chat.turns.push({role:"user",content:"Learner: "+userText}); const ui=chat.items[chat.items.length-1]; if(ui&&ui.me){ ui.fix=String(data.fix||"").trim(); ui.tip=String(data.tip||"").trim(); if(ui.fix&&norm(ui.fix)===norm(ui.text)) ui.fix="";
+      if(ui.fix){ state.log.unshift({q:"AI razgovor",a:ui.text,c:ui.fix,x:ui.tip,t:Date.now()}); state.log=state.log.slice(0,40); } } addXP(5); today().talk=true; save(); }
+    chat.turns.push({role:"assistant",content:JSON.stringify(data)});
+    chat.items.push({me:false,text:reply,sr:String(data.reply_sr||""),ideas:Array.isArray(data.ideas)?data.ideas.slice(0,3).map(String):[]});
+    say(reply);
+  }catch(e){ const c=e&&e.code; const ui=chat.items[chat.items.length-1]; if(userText!=null&&ui&&ui.me) ui.failed=true;
+    chat.err=c==="not_granted"?"AI razgovor nije dozvoljen. Dozvolu možeš da uključiš u meniju „Dozvole“ ove stranice.":c==="rate_limited"?"Previše poruka za kratko vreme ili je potrošen limit. Sačekaj pa probaj ponovo. Lekcije i dalje rade normalno.":"Odgovor nije stigao. Pokušaj ponovo."; }
+  chat.busy=false; if(tab==="talk"&&!L) render();
+}
+function startScenario(id){ chat={scen:id,turns:[],items:[],busy:false,err:null}; chatCall(null); }
+function sendChat(){ const ta=document.getElementById("chatbox"); if(!ta||chat.busy) return; const t=ta.value.trim(); if(!t) return; ta.value=""; chat.items=chat.items.filter(x=>!x.failed); chat.items.push({me:true,text:t}); chatCall(t); }
+function viewTalk(w,main){
+  if(chat.scen&&IN_CLAUDE&&sampleAvail){ viewChat(w,main); return; }
+  w.append(h("h1",{class:"pageh"},"Razgovor"));
+  const opens=UNITS.filter(unitOpen);
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Razgovor glasom"),
+    h("p",{style:"margin:0"},"Aplikacija izgovori rečenicu osobe A, a ti odgovaraš naglas"+(micUsable()?" u mikrofon. Vidiš koje reči nisu jasne.":". Mikrofon ovde ne radi, pa izgovor proveravaš sam.")),
+    h("label",{class:"switch"},h("input",{type:"checkbox",id:"hardmode",checked:state.hard?true:null,onchange:(e)=>{ state.hard=e.target.checked; save(); }}),h("span",null,"Teži režim: sakrij engleski tekst (gledaš samo prevod)")),
+    h("div",{class:"exl"},opens.slice().reverse().slice(0,12).map(u=>h("button",{type:"button",onclick:()=>startVoiceDialog(u)},h("span",null,h("span",{class:"e"},u.sr),h("br"),h("span",{class:"s"},u.lvl+" · "+u.en)),svg(IC.mic))))));
+  const ai=h("section",{class:"card stack"},h("div",{class:"eyebrow"},"AI partner za razgovor"));
+  if(IN_CLAUDE&&sampleAvail){
+    ai.append(h("p",{style:"margin:0"},"Dopisuj se na engleskom u izabranoj situaciji. Ako ne znaš reč, napiši je na srpskom: dobićeš ispravku i objašnjenje."),
+      h("div",{class:"scen",role:"group","aria-label":"Situacija"},SCENARIOS.map(s=>h("button",{type:"button",onclick:()=>startScenario(s.id)},s.sr))));
+  } else if(IN_CLAUDE&&sampleAvail===undefined){ ai.append(h("p",{class:"note",style:"margin:0"},"Učitavam…")); }
+  else {
+    ai.append(h("p",{style:"margin:0"},"AI razgovor radi na claude.ai stranici, uz tvoj Claude nalog. Tamo pišeš poruke, a AI ti odgovara i ispravlja greške na srpskom. Troši malo tvog Claude limita."),
+      h("a",{class:"btn",href:AI_URL,target:"_blank",rel:"noopener"},"Otvori AI razgovor"),
+      h("p",{class:"note",style:"margin:0"},"Na claude.ai moraš da budeš prijavljen. Napredak sa te stranice se čuva odvojeno."));
+  }
+  w.append(ai);
+}
+function viewChat(w,main){
+  const s=SCENARIOS.find(x=>x.id===chat.scen);
+  w.append(h("div",{class:"row",style:"justify-content:space-between"},h("h1",{class:"pageh"},s.sr),h("button",{class:"btn small ghost",type:"button",onclick:()=>{ if(!chat.busy){ chat={scen:null,turns:[],items:[],busy:false,err:null}; render(); } }},"Nazad")));
+  main.classList.add("chatpad");
+  const log=h("div",{class:"chatlog",id:"chatlog"});
+  chat.items.forEach((it,idx)=>{
+    if(it.me){ log.append(h("div",{class:"bub me"},h("span",{class:"who"},"Ti"),h("span",{class:"en"},it.text))); if(it.fix) log.append(h("div",{class:"fix"},h("b",null,"Bolje: "+it.fix),it.tip?h("span",null,it.tip):null)); }
+    else { const sr=h("span",{class:"srt",hidden:true},it.sr);
+      log.append(h("div",{class:"bub"},h("span",{class:"who"},s.sr),h("span",{class:"en"},it.text),sr,h("div",{class:"row",style:"gap:12px"},h("button",{class:"mini",type:"button",onclick:()=>say(it.text)},svg(IC.spk),"Slušaj"),h("button",{class:"mini",type:"button",onclick:()=>say(it.text,true)},"Sporo"),it.sr?h("button",{class:"mini",type:"button",onclick:(e)=>{ sr.hidden=!sr.hidden; e.currentTarget.textContent=sr.hidden?"Prevod":"Sakrij prevod"; }},"Prevod"):null)));
+      if(idx===chat.items.length-1&&it.ideas.length&&!chat.busy) log.append(h("div",{class:"ideas"},h("span",{class:"note",style:"width:100%"},"Ideje za odgovor:"),it.ideas.map(t=>h("button",{type:"button",onclick:()=>{ const ta=document.getElementById("chatbox"); if(ta){ ta.value=t; ta.focus(); } }},t)))); }
+  });
+  if(chat.busy) log.append(h("div",{class:"typing"},"Piše…"));
+  if(chat.err) log.append(h("div",{class:"card",style:"border-color:var(--bad);display:flex;flex-direction:column;gap:8px"},h("span",null,chat.err),h("button",{class:"btn small ghost",type:"button",onclick:()=>{ const last=chat.items[chat.items.length-1]; if(last&&last.me&&last.failed){ last.failed=false; chatCall(last.text); } else if(!chat.items.length) chatCall(null); else { chat.err=null; render(); } }},"Pokušaj ponovo")));
+  w.append(log);
+  main.after(h("div",{class:"composer"},h("div",{class:"wrap"},h("textarea",{id:"chatbox",rows:"1",placeholder:"Napiši na engleskom…","aria-label":"Tvoja poruka",onkeydown:(e)=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); sendChat(); } }}),h("button",{class:"btn",type:"button","aria-label":"Pošalji",onclick:sendChat,disabled:chat.busy},svg(IC.send)))));
+}
+function afterChatRender(){ if(chat.scen&&chat.items.length) setTimeout(()=>window.scrollTo({top:document.body.scrollHeight}),30); }
+
+/* ================= ACCOUNT ================= */
+let authMode="login", authMsg="", authBusy=false;
+const AUTH_ERR={"auth/invalid-email":"E-mail adresa nije ispravna.","auth/user-not-found":"Nalog sa tom adresom ne postoji.","auth/wrong-password":"Pogrešna lozinka.","auth/invalid-credential":"Pogrešan e-mail ili lozinka.","auth/email-already-in-use":"Nalog sa tom adresom već postoji. Prijavi se.","auth/weak-password":"Lozinka mora imati bar 6 znakova.","auth/network-request-failed":"Nema internet veze.","auth/too-many-requests":"Previše pokušaja. Sačekaj malo pa probaj ponovo.","auth/missing-password":"Upiši lozinku."};
+function authErr(e){ return AUTH_ERR[e&&e.code]||"Nije uspelo: "+(e&&e.message||"nepoznata greška"); }
+async function doAuth(e){ e.preventDefault(); if(authBusy) return; const f=e.target; const email=f.querySelector("#aemail").value.trim(), pass=f.querySelector("#apass")?f.querySelector("#apass").value:"", nickEl=f.querySelector("#anick");
+  authBusy=true; authMsg=""; try{
+    if(authMode==="login") await FB.auth.signInWithEmailAndPassword(email,pass);
+    else if(authMode==="register"){ const nick=(nickEl.value||"").trim().slice(0,24); if(nick.length<2) throw {message:"Nadimak mora imati bar 2 znaka."};
+      const cred=await FB.auth.createUserWithEmailAndPassword(email,pass); await cred.user.updateProfile({displayName:nick}); FB.user=FB.auth.currentUser; remotePush(); }
+    else { await FB.auth.sendPasswordResetEmail(email); authMsg="Poslali smo ti e-mail za novu lozinku. Proveri i spam folder."; authMode="login"; }
+  }catch(err){ authMsg=err.code?authErr(err):err.message; } authBusy=false; render(); }
+function accountCard(){
+  const c=h("section",{class:"card stack",id:"account"},h("div",{class:"eyebrow"},"Nalog"));
+  if(IN_CLAUDE){ c.append(h("p",{style:"margin:0"},"Ovde si prijavljen preko claude.ai naloga i napredak se čuva automatski. Prijava za rang listu je u glavnoj (GitHub) verziji aplikacije.")); return c; }
+  if(!FB.ready){ c.append(h("p",{style:"margin:0"},FB.err?"Prijava trenutno ne radi: "+FB.err:"Prijava na nalog i rang lista još nisu uključeni u ovoj aplikaciji."),h("p",{class:"note",style:"margin:0"},"Vlasnik aplikacije ih uključuje jednom, prema uputstvu „Firebase“ u fajlu UPUTSTVO. Do tada se napredak čuva samo na ovom telefonu.")); return c; }
+  if(FB.user){ c.append(h("div",{class:"row"},h("span",{class:"avatar"},svg(IC.user)),h("div",{style:"flex:1;min-width:0"},h("b",null,FB.user.displayName||"Učenik"),h("div",{class:"note"},FB.user.email)),h("button",{class:"btn small ghost",type:"button",onclick:()=>FB.auth.signOut()},"Odjavi se")),
+    h("p",{class:"note",style:"margin:0"},"Napredak se čuva na nalogu, pa ga imaš na svakom uređaju gde se prijaviš.")); return c; }
+  if(!FB.checked){ c.append(h("p",{class:"note",style:"margin:0"},"Proveravam prijavu…")); return c; }
+  const seg=h("div",{class:"seg",role:"group","aria-label":"Prijava ili registracija"},[["login","Prijava"],["register","Novi nalog"]].map(([m,l])=>h("button",{type:"button","aria-pressed":authMode===m?"true":"false",onclick:()=>{ authMode=m; authMsg=""; render(); }},l)));
+  const f=h("form",{class:"aform",onsubmit:doAuth},
+    authMode==="register"?h("label",null,"Nadimak (vidi se na rang listi)",h("input",{class:"field",id:"anick",required:true,maxlength:"24",autocomplete:"nickname"})):null,
+    h("label",null,"E-mail",h("input",{class:"field",id:"aemail",type:"email",required:true,autocomplete:"email",autocapitalize:"off"})),
+    authMode!=="reset"?h("label",null,"Lozinka",h("input",{class:"field",id:"apass",type:"password",required:true,minlength:"6",autocomplete:authMode==="register"?"new-password":"current-password"})):null,
+    authMsg?h("p",{class:"amsg",role:"alert"},authMsg):null,
+    h("button",{class:"btn block",type:"submit",disabled:authBusy},authBusy?"Sačekaj…":authMode==="login"?"Prijavi se":authMode==="register"?"Napravi nalog":"Pošalji link za novu lozinku"),
+    authMode==="login"?h("button",{class:"linkbtn",type:"button",onclick:()=>{ authMode="reset"; authMsg=""; render(); }},"Zaboravio sam lozinku"):null,
+    authMode==="reset"?h("button",{class:"linkbtn",type:"button",onclick:()=>{ authMode="login"; authMsg=""; render(); }},"Nazad na prijavu"):null);
+  c.append(h("p",{style:"margin:0"},"Prijavi se da čuvaš napredak na nalogu i da se takmičiš na rang listi."),authMode==="reset"?null:seg,f);
+  return c;
+}
+
+/* ================= LEADERBOARD ================= */
+let lbMode="week"; const lbCache={};
+async function loadLB(mode){
+  try{ const q= mode==="week"? FB.db.collection("lb").doc(weekId()).collection("users").orderBy("xp","desc").limit(50) : FB.db.collection("lbAll").orderBy("xp","desc").limit(50);
+    const snap=await q.get(); lbCache[mode]={rows:snap.docs.map(d=>Object.assign({id:d.id},d.data())),t:Date.now()}; }
+  catch(e){ lbCache[mode]={err:e.code==="permission-denied"?"Baza ne dozvoljava čitanje. Proveri pravila (Rules) u Firebase-u prema uputstvu.":"Rang lista nije učitana. Proveri internet vezu.",t:Date.now()}; }
+  if(tab==="rank"&&!L) render();
+}
+function viewRank(w){
+  w.append(h("h1",{class:"pageh"},"Rang lista"));
+  if(IN_CLAUDE||!FB.ready||!FB.user){
+    if(!IN_CLAUDE&&FB.ready&&!FB.user) w.append(h("p",{class:"muted",style:"margin:0"},"Prijavi se ili napravi nalog da se pojaviš na rang listi i vidiš ostale."));
+    w.append(accountCard()); return; }
+  const seg=h("div",{class:"seg",role:"group","aria-label":"Period"},[["week","Ova nedelja"],["all","Ukupno"]].map(([m,l])=>h("button",{type:"button","aria-pressed":lbMode===m?"true":"false",onclick:()=>{ lbMode=m; render(); }},l)));
+  w.append(h("div",{class:"row",style:"justify-content:space-between"},seg,h("button",{class:"btn small ghost",type:"button",onclick:()=>{ remotePush(); delete lbCache[lbMode]; render(); }},"Osveži")));
+  const c=lbCache[lbMode];
+  if(!c||Date.now()-c.t>60000){ if(!c) w.append(h("p",{class:"note"},"Učitavam…")); setTimeout(()=>loadLB(lbMode),0); if(!c) return; }
+  if(c.err){ w.append(h("p",{class:"card"},c.err)); return; }
+  const me=FB.user.uid, rows=c.rows.slice();
+  const mine={id:me,name:FB.user.displayName||"Ti",xp:lbMode==="week"?Math.round(weekXP()):state.xp,level:LV[curLevel()],streak:curStreak()};
+  const ix=rows.findIndex(r=>r.id===me); if(ix>=0) rows[ix]=Object.assign(rows[ix],{xp:mine.xp}); else rows.push(mine);
+  rows.sort((a,b)=>(b.xp||0)-(a.xp||0));
+  w.append(h("p",{class:"note",style:"margin:0"},lbMode==="week"?"XP od ponedeljka. Nova nedelja počinje od nule.":"Ukupan XP od početka."));
+  w.append(h("ol",{class:"lb"},rows.map((r,i)=>h("li",{class:r.id===me?"me":""},h("span",{class:"rk"+(i<3?" top"+(i+1):"")},String(i+1)),h("span",{class:"nm"},h("b",null,r.name||"Učenik",r.id===me?" (ti)":""),h("span",null,(r.level||"A1")+" · "+svgTxtFlame(r.streak||0))),h("span",{class:"xp"},(r.xp||0)+" XP")))));
+}
+function svgTxtFlame(n){ return n+" "+plural(n,"dan","dana","dana")+" zaredom"; }
+
+/* ================= STATS VIEW ================= */
+function viewStats(w){
+  const learned=Object.values(state.it).filter(s=>s.b>=2).length, done=UNITS.filter(unitDone).length;
+  w.append(h("h1",{class:"pageh"},"Napredak"));
+  w.append(accountCard());
+  w.append(h("div",{class:"stats3"},h("div",{class:"stat"},h("b",null,String(curStreak())),h("span",null,"dana zaredom")),h("div",{class:"stat"},h("b",null,String(learned)),h("span",null,"naučenih stavki")),h("div",{class:"stat"},h("b",null,done+"/"+UNITS.length),h("span",null,"jedinica"))));
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Nivoi"),LV.map((l,li)=>{ const us=unitsOf(l), dn=us.filter(unitDone).length;
+    return h("div",{class:"lvrow"},h("span",{class:"lvbadge"+(li>state.lvl?" off":"")},l),h("span",{class:"lvname"},LVN[l]),h("span",{class:"sbar"},h("i",{style:"width:"+Math.round(dn/us.length*100)+"%"})),h("span",{class:"note"},li<state.lvl?"✓":dn+"/"+us.length)); })));
+  let worst=null; const sk=h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Veštine (poslednjih 40 odgovora)"));
+  SKILLS.forEach(([id,n])=>{ const a=skillAcc(id); if(a!=null&&(!worst||a<worst.a)) worst={id,n,a};
+    sk.append(h("div",{class:"lvrow sk3"},h("span",{class:"lvname"},n),h("span",{class:"sbar"},h("i",{class:a!=null&&a<75?"low":"",style:"width:"+(a||0)+"%"})),h("span",{class:"note",style:"width:40px;text-align:right"},a==null?"—":a+"%"))); });
+  if(worst&&worst.a<85) sk.append(h("p",{class:"note",style:"margin:0"},h("b",null,"Savet: "),"najslabije ti je „"+worst.n+"“. "+SKILL_TIP[worst.id]),h("button",{class:"btn small",type:"button",onclick:()=>startSkill(worst.id)},"Vežbaj: "+worst.n));
+  w.append(sk);
+  const days=[]; for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); days.push(d); }
+  const vals=days.map(d=>state.hist[dkey(d)]||0), max=Math.max(state.goal,...vals), DN=["N","P","U","S","Č","P","S"];
+  w.append(h("section",{class:"card"},h("div",{class:"row",style:"justify-content:space-between"},h("div",{class:"eyebrow"},"XP poslednjih 14 dana"),h("div",{class:"note"},"Ova nedelja: "+weekXP()+" XP")),
+    h("div",{class:"chart",role:"img","aria-label":"XP po danima"},vals.map((v,i)=>h("div",{class:(i===13?"today-b":v>=state.goal?"goal-hit":""),style:"height:"+Math.max(2,Math.round(v/max*100))+"%",title:dkey(days[i])+": "+v+" XP"}))),
+    h("div",{class:"chartx"},days.map(d=>h("span",null,DN[d.getDay()]))),h("div",{class:"note",style:"margin-top:6px"},"Zeleno: ispunjen dnevni cilj. Žuto: danas.")));
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Poslednje greške"),
+    state.log.length?h("div",{class:"mlist"},state.log.slice(0,15).map(m=>h("div",{class:"mrow"},m.q?h("span",{class:"mq"},m.q):null,m.a?h("span",{class:"your"},"Ti: ",h("s",null,m.a)):null,h("span",{class:"mc"},"Tačno: ",h("b",null,m.c)),m.x?h("span",{class:"why"},m.x):null)))
+      :h("p",{class:"note",style:"margin:0"},"Još nema grešaka. Kad pogrešiš, ovde vidiš šta si napisao i šta je tačno.")));
+  // settings
+  const goalSeg=h("div",{class:"seg",role:"group","aria-label":"Dnevni cilj"},[30,50,100,150].map(g=>h("button",{type:"button","aria-pressed":state.goal===g?"true":"false",onclick:()=>{ state.goal=g; save(); render(); }},String(g))));
+  const rateSeg=h("div",{class:"seg",role:"group","aria-label":"Brzina govora"},[[0.75,"Sporije"],[0.9,"Normalno"],[1.05,"Brže"]].map(([r,l])=>h("button",{type:"button","aria-pressed":state.rate===r?"true":"false",onclick:()=>{ state.rate=r; save(); render(); say("This is how I sound."); }},l)));
+  const micOut=h("span",{class:"note"});
+  const micBtn=h("button",{class:"btn small ghost",type:"button",onclick:()=>{ micOut.textContent="Reci: Hello, how are you?"; recognize(alts=>{ const r=scoreSpeech("Hello, how are you?",alts); micOut.textContent="Čuo sam „"+r.heard+"“ · "+r.score+"%"; },err=>{ micOut.textContent=micErr(err); }); }},"Proveri mikrofon");
+  const resetBox=h("div"); const resetBtn=h("button",{class:"btn small ghost",type:"button",onclick:()=>{ resetBox.innerHTML=""; resetBox.append(h("div",{class:"row"},h("span",{class:"note"},"Obrisati sav napredak na ovom uređaju?"),h("button",{class:"btn small danger",type:"button",onclick:()=>{ state=fresh(); save(); openLv.clear(); render(); }},"Da, obriši"),h("button",{class:"btn small ghost",type:"button",onclick:()=>{ resetBox.innerHTML=""; resetBox.append(resetBtn); }},"Ne"))); }},"Počni ispočetka");
+  resetBox.append(resetBtn);
+  w.append(h("section",{class:"card"},h("div",{class:"eyebrow"},"Podešavanja"),
+    h("div",{class:"setrow"},h("span",null,"Dnevni cilj (XP)"),goalSeg),
+    h("div",{class:"setrow"},h("span",null,"Brzina izgovora"),rateSeg),
+    h("div",{class:"setrow"},h("span",null,"Mikrofon"),h("div",{class:"row"},micBtn,micOut)),
+    h("div",{class:"setrow"},h("span",null,"Test nivoa"),h("button",{class:"btn small ghost",type:"button",onclick:startPlacement},"Uradi ponovo")),
+    h("div",{class:"setrow"},h("span",null,"Napredak"),resetBox)));
+  // backup
+  const out=h("textarea",{class:"field backup",id:"bkout",readonly:true,rows:"3","aria-label":"Rezervna kopija"});
+  const inp=h("textarea",{class:"field backup",id:"bkin",rows:"3",placeholder:"Nalepi kod rezervne kopije ovde","aria-label":"Učitaj rezervnu kopiju"});
+  const bmsg=h("span",{class:"note"});
+  w.append(h("section",{class:"card stack"},h("div",{class:"eyebrow"},"Rezervna kopija"),
+    h("p",{class:"note",style:"margin:0"},"Ako nisi prijavljen, napredak je samo na ovom telefonu. Sačuvaj kod negde (npr. u Beleške) da ga vratiš ako zatreba."),
+    h("div",{class:"row"},h("button",{class:"btn small ghost",type:"button",onclick:()=>{ out.value="ESD2:"+btoa(unescape(encodeURIComponent(JSON.stringify(state)))); out.select(); try{ navigator.clipboard.writeText(out.value).then(()=>bmsg.textContent="Kopirano.",()=>bmsg.textContent="Označeno, kopiraj ručno."); }catch(e){ bmsg.textContent="Označeno, kopiraj ručno."; } }},"Napravi i kopiraj kod"),bmsg),out,inp,
+    h("button",{class:"btn small ghost",type:"button",onclick:()=>{ try{ const v=inp.value.trim(); if(!v.startsWith("ESD2:")) throw 0; const s=JSON.parse(decodeURIComponent(escape(atob(v.slice(5))))); if(!s||s.v!==2) throw 0; state=Object.assign(fresh(),s); save(); openLv.clear(); toast("Napredak je vraćen."); render(); }catch(e){ bmsg.textContent="Kod nije ispravan."; } }},"Vrati iz koda")));
+  w.append(h("section",{class:"card"},h("div",{class:"eyebrow"},"Aplikacija na telefonu"),
+    h("p",{style:"margin:8px 0 0;font-weight:700"},"iPhone (Safari)"),h("ol",{class:"howto"},h("li",null,"Otvori adresu aplikacije u Safariju."),h("li",null,"Dodirni dugme Podeli (kvadrat sa strelicom nagore)."),h("li",null,"Izaberi „Dodaj na početni ekran“ (Add to Home Screen)."),h("li",null,"Za mikrofon: Podešavanja → Safari → Mikrofon → Dozvoli.")),
+    h("p",{style:"margin:12px 0 0;font-weight:700"},"Android (Chrome)"),h("ol",{class:"howto"},h("li",null,"Otvori adresu u Chrome-u."),h("li",null,"Dodirni ⋮ gore desno."),h("li",null,"Izaberi „Dodaj na početni ekran“ ili „Instaliraj aplikaciju“."))));
+}
+
+/* ================= BOOT ================= */
+document.addEventListener("keydown",e=>{ if(!L||e.key!=="Enter") return; const t=e.target; if(t&&(t.id==="typefield"||t.tagName==="TEXTAREA")) return; const b=document.getElementById("mainbtn"); if(b&&!b.disabled&&document.activeElement!==b){ e.preventDefault(); b.click(); } });
+if(!IN_CLAUDE&&"serviceWorker" in navigator&&location.protocol==="https:"){ try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){} }
+fbInit();
+render();
+
+</script>
+</body>
+</html>
