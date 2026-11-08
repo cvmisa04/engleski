@@ -918,25 +918,41 @@ function recognizeP(onInterim){ return new Promise((res,rej)=>{ let got=null, er
 function stopListening(){ if(RECX.stop) RECX.stop(); stopRec(); }
 function cancelListening(){ if(RECX.cancel) RECX.cancel(); stopRec(); }
 
-/* ---------- pronunciation check ---------- */
-function aiPron(target,b64){
-  const sys="You check English pronunciation for Serbian learners. Be accurate and fair: an accent is fine when the words are understandable. Answer only with JSON.";
-  const txt='Target sentence: "'+target+'"\nThe audio is a learner trying to say the target sentence.\nReturn JSON: {"heard": "exactly what you hear, word for word, in English. Do not correct mistakes and do not assume the target was said", "bad": ["words of the target that were missing or not understandable"], "score": 0-100 (how understandable the whole sentence was to a native speaker), "tip": "one short tip in Serbian (Latin script) for the worst word, writing the right sound with Serbian letters; empty string if everything was clear"}';
-  return aiJSON(sys,[{role:"user",parts:[{text:txt},{inlineData:{mimeType:"audio/wav",data:b64}}]}]);
+/* ---------- pronunciation check ----------
+   The AI never sees the target sentence (otherwise it "hears" the target even in silence).
+   It lists the words it hears, how each one sounded and whether a native speaker would accept it.
+   The score is computed here by comparing those words with the target. */
+function aiHear(b64){
+  const sys="You are a strict pronunciation examiner for Serbian learners of English. You report only what is really audible. You never guess, complete, improve or correct anything. Answer only with JSON.";
+  const txt='Listen to the recording. List every word the speaker says, in order. For each word give: "w" the English word the speaker most likely meant, "said" how it actually sounded spelled in simple English letters, and "ok" true only if a native speaker would accept the pronunciation as correct (Serbian learners often say s/t/f instead of th, v instead of w, and a instead of u). If there is no clear speech, return an empty list.\nReturn JSON: {"words": [{"w": "...", "said": "...", "ok": true}]}';
+  return aiJSON(sys,[{role:"user",parts:[{inlineData:{mimeType:"audio/wav",data:b64}},{text:txt}]}]);
 }
+function wordTip(w){ const rd=PRON[w];
+  if(rd) return "Čita se: "+rd+".";
+  if(/th/.test(w)) return "Za „th“ stavi vrh jezika između zuba i pusti vazduh (nije „s“, „t“ ni „f“).";
+  if(/^wh?/.test(w)) return "„w“ je kratko „u“ sa ispruženim usnama, nije „v“.";
+  if(/[dtgkbp]$/.test(w)) return "Izgovori jasno i poslednji glas.";
+  return "Pusti „Sporo“ i ponovi polako."; }
+function pronTip(target,hit,bad){ const tw=speechWords(target); const i=hit.findIndex(x=>!x); if(i<0) return "";
+  const w=tw[i], two=tw[i+1]?w+" "+tw[i+1]:"", key=PRON[two]?two:w;
+  const b=(bad||[]).find(x=>speechWords(x.w).includes(w));
+  if(b&&b.said&&norm(b.said)!==norm(w)) return "Čulo se „"+b.said+"“ umesto „"+w+"“. "+wordTip(key);
+  return (b?"Reč „"+w+"“ nije izgovorena kako treba. ":"Reč „"+w+"“ se nije čula jasno. ")+wordTip(key); }
 async function listenTarget(target,cb){ cb=cb||{}; const eng=micEngine();
   if(eng==="ai"){
     cb.phase&&cb.phase("listen");
     const r=await recordWav({onLevel:cb.level,maxMs:12000,silenceMs:1200,noSpeechMs:6000});
     if(!r.speech) throw "no-speech";
     cb.phase&&cb.phase("think");
-    let d; try{ d=await aiPron(target,r.b64); }catch(e){ if(aiErrKind(e)!=="other") AIX.down=Date.now(); throw {ai:e}; }
-    const heard=String(d.heard||"").trim();
-    const sc=scoreSpeech(target,[heard],Array.isArray(d.bad)?d.bad.map(String):[]);
-    const ai=Number(d.score); if(heard&&isFinite(ai)) sc.score=Math.round((sc.score+Math.max(0,Math.min(100,ai)))/2);
-    sc.tip=String(d.tip||"").trim(); sc.engine="ai"; return sc;
+    let d; try{ d=await aiHear(r.b64); }catch(e){ if(aiErrKind(e)!=="other") AIX.down=Date.now(); throw {ai:e}; }
+    const ws=(Array.isArray(d.words)?d.words:[]).filter(x=>x&&x.w).map(x=>({w:String(x.w).trim(),said:String(x.said||"").trim(),ok:x.ok!==false}));
+    const heard=ws.map(x=>x.w).join(" ").trim(); if(!heard) throw "no-speech";
+    const bad=ws.filter(x=>!x.ok);
+    const sc=scoreSpeech(target,[heard],bad.map(x=>x.w));
+    sc.heard=ws.map(x=>x.ok?x.w:(x.said||x.w)).join(" ");
+    sc.tip=sc.score<100?pronTip(target,sc.hit,bad):""; sc.engine="ai"; return sc;
   }
-  if(eng==="web"){ cb.phase&&cb.phase("listen"); const alts=await recognizeP(cb.interim); const sc=scoreSpeech(target,alts); sc.engine="web"; return sc; }
+  if(eng==="web"){ cb.phase&&cb.phase("listen"); const alts=await recognizeP(cb.interim); const sc=scoreSpeech(target,alts); sc.tip=sc.score<100?pronTip(target,sc.hit,[]):""; sc.engine="web"; return sc; }
   throw "unsupported";
 }
 function listenErr(e){ if(e&&e.ai) return aiErrMsg(e.ai)+(SRC?" Sledeći pokušaj koristi ugrađeno prepoznavanje u telefonu.":""); return micErr(e); }
@@ -1060,7 +1076,7 @@ function convSystem(s){ const c=CHARS[s.ch], lv=LV[curLevel()];
   "The learner is a Serbian speaker at CEFR level "+lv+". Talk like a real person: warm and natural, short turns (1-2 sentences, at most 25 words), with vocabulary and grammar a "+lv+" learner understands. Usually end with a question so the conversation continues. Stay in character and never say you are an AI.\n"+
   "Each learner turn is audio (their speech) or typed text. They may make mistakes or use Serbian words: understand them and continue naturally.\n"+
   "Reply ONLY with a JSON object with these keys:\n"+
-  "\"heard\": exact transcription of what the learner said, word for word (for typed text copy it; empty for your first line),\n"+
+  "\"heard\": exact transcription of what the learner really said, word for word, including mistakes (for typed text copy it; empty for your first line). If the audio has no clear speech, use \"\" and never invent what the learner said,\n"+
   "\"fix\": the corrected natural English version of the learner's sentence if it had grammar or vocabulary mistakes or Serbian words, otherwise \"\",\n"+
   "\"why\": if fix is not empty, a very short explanation in Serbian (Latin script) of the main mistake, otherwise \"\",\n"+
   "\"pron\": only for audio: if one word was clearly mispronounced, a short tip in Serbian (Latin script) that writes the right sound with Serbian letters, otherwise \"\",\n"+
