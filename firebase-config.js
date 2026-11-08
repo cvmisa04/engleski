@@ -1,14 +1,12 @@
-/* Podaci iz Firebase konzole (vidi UPUTSTVO.md, deo 2).
-   Dok je ovde null, aplikacija radi bez prijave i rang liste. */
-window.FIREBASE_CONFIG = null;
-
-/* Kad napraviš Firebase projekat, obriši red iznad i ovde nalepi svoje podatke, na primer:
+/* Javni podaci Firebase projekta "engleski-svaki-dan" (nisu tajni; zaštitu daju pravila baze).
+   Prijava, rang lista i AI razgovor rade preko ovog projekta. */
 window.FIREBASE_CONFIG = {
-  apiKey: "AIza...",
-  authDomain: "engleski-xxxx.firebaseapp.com",
-  projectId: "engleski-xxxx",
-  storageBucket: "engleski-xxxx.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abc123"
+  apiKey: "AIzaSyATh6IG09JrG_gsutpV6i0vbygN47H9uSM",
+  authDomain: "engleski-svaki-dan.firebaseapp.com",
+  projectId: "engleski-svaki-dan",
+  storageBucket: "engleski-svaki-dan.firebasestorage.app",
+  messagingSenderId: "377356707099",
+  appId: "1:377356707099:web:26ab817aefa6dc16089fbe"
 };
-*/
+/* Javni ključ za reCAPTCHA (App Check): štiti besplatni AI da ga ne koriste druge stranice. */
+window.RECAPTCHA_KEY = "6LeBqxYuAAAAABea32gcIjxAQSG5BT1NimaUrnit";
